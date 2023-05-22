@@ -17,7 +17,7 @@ class UserRead(UserBase):
 
 
 class UserCreate(UserBase):
-    password: str
+    pass
 
 
 class UserUpdate(SQLModel):
