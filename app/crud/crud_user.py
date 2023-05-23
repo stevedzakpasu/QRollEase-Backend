@@ -1,32 +1,47 @@
+from datetime import datetime, timedelta
 from typing import Optional
 from sqlmodel import Session, col, select
-from app.core.security import get_hashed_password, verify_password
+from app.core.security import generate_verification_code, get_hashed_password, verify_password
 from app.models.user import User
 from app.schemas.user import UserAdminCreate, UserUpdate
 from app.crud.base import CRUDBase
 
 
 class CRUDUser(CRUDBase[User, UserAdminCreate, UserUpdate]):
+
+
     def get_by_email(self, *, session: Session, email: str) -> User:
         return session.exec(select(User).where(col(User.email) == email)).first()
     
     def get_by_id(self, *, session: Session, id: int) -> User:
         return session.exec(select(User).where(col(User.id) == id)).first()
 
+    
     def create_by_user(self, *, session: Session, obj_in: UserAdminCreate) -> User:
+        verification_code = generate_verification_code()
+        code_expiration_time = datetime.now() + timedelta(minutes=15)
+
         db_obj = User(
             first_name=obj_in.first_name,
             last_name=obj_in.last_name,
             email=obj_in.email,
-            hashed_password=get_hashed_password(obj_in.password)
+            hashed_password=get_hashed_password(obj_in.password),
+            verification_code=verification_code,
+            code_expiration_time=code_expiration_time
         )
 
         session.add(db_obj)
         session.commit()
         session.refresh(db_obj)
+
         return db_obj
+    
 
     def create_by_admin(self, *, session: Session, obj_in: UserAdminCreate) -> User:
+
+        verification_code = generate_verification_code()
+        code_expiration_time = datetime.now() + timedelta(minutes=15)
+
         db_obj = User(
             first_name=obj_in.first_name,
             last_name=obj_in.last_name,
@@ -34,12 +49,15 @@ class CRUDUser(CRUDBase[User, UserAdminCreate, UserUpdate]):
             hashed_password=get_hashed_password(obj_in.password),
             is_superuser=obj_in.is_superuser,
             is_staff=obj_in.is_staff,
-            is_active=obj_in.is_active
+            is_active=obj_in.is_active,
+            verification_code=verification_code,
+            code_expiration_time=code_expiration_time
         )
 
         session.add(db_obj)
         session.commit()
         session.refresh(db_obj)
+
         return db_obj
 
     def update(self, *, session: Session, id: int, obj_in: UserUpdate) -> User:

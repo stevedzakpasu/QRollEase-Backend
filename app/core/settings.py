@@ -1,7 +1,7 @@
 import secrets
 from typing import Any
-from pydantic import AnyHttpUrl, BaseSettings, EmailStr, validator
-
+from pydantic import AnyHttpUrl, BaseSettings, EmailStr
+from fastapi_mail import ConnectionConfig
 
 class Settings(BaseSettings):
 
@@ -24,7 +24,18 @@ class Settings(BaseSettings):
     SUPERUSER_PASSWORD: str = "admin"
     SUPERUSER: bool = True
 
-
+    CONF = ConnectionConfig(
+    MAIL_USERNAME = "qrollease@gmail.com",
+    MAIL_PASSWORD = "umecplnsxtteboak",
+    MAIL_FROM = "qrollease@gmail.com",
+    MAIL_PORT = 587,
+    MAIL_SERVER = "smtp.gmail.com",
+    MAIL_FROM_NAME="QRollEase Verification",
+    MAIL_STARTTLS = True,
+    MAIL_SSL_TLS = False,
+    USE_CREDENTIALS = True,
+    VALIDATE_CERTS = True
+)
     class Config:
         case_sensitive = True
         env_file = ".venv"

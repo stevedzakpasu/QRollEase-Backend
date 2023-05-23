@@ -1,10 +1,13 @@
+import datetime
 from sqlmodel import SQLModel, Session
 from app.core.db import engine
-from app.core.security import get_hashed_password
+from app.core.security import generate_verification_code, get_hashed_password
 from app.core.settings import settings
 from app.crud.crud_user import user
 from app.models.user import User
+from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
 
+fastmail = FastMail(settings.CONF)
 
 def get_session():
     with Session(engine) as session:
@@ -26,3 +29,23 @@ def create_superuser():
             )
             session.add(new_user)
             session.commit()
+
+
+
+def send_verification_code(email: str) -> str:
+    verification_code = generate_verification_code()
+    expiration_time = datetime.now() + datetime.timedelta(minutes=15)  
+
+    with Session(engine) as session:
+        user = User(email=email, verification_code=verification_code, expiration_time=expiration_time)
+        session.add(user)
+        session.commit()
+
+    message = MessageSchema(
+        subject="Account Verification",
+        recipients=[email],
+        body=f"Your verification code is: {verification_code}"
+    )
+    fastmail.send_message(message)
+
+    return verification_code

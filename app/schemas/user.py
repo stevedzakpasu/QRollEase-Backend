@@ -18,6 +18,8 @@ class UserBase(SQLModel):
     updated_at: Optional[datetime] = Field(
         sa_column=Column(DateTime(timezone=True), onupdate=func.now())
     )
+    verification_code: Optional[str] = None
+    code_expiration_time: Optional[datetime] = None
     is_superuser: Optional[bool] = Field(default=False)
     is_staff: Optional[bool] = Field(default=False)
     is_active: Optional[bool] = Field(default=True)

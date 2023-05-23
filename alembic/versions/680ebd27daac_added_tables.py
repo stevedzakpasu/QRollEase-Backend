@@ -1,8 +1,8 @@
 """added tables
 
-Revision ID: c9ca786ce755
+Revision ID: 680ebd27daac
 Revises: 
-Create Date: 2023-05-22 18:18:10.638296
+Create Date: 2023-05-23 13:01:26.014963
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 import sqlmodel.sql.sqltypes
 
 # revision identifiers, used by Alembic.
-revision = 'c9ca786ce755'
+revision = '680ebd27daac'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -26,6 +26,8 @@ def upgrade() -> None:
     sa.Column('first_name', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('last_name', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('programme', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
+    sa.Column('verification_code', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
+    sa.Column('cede_expiration_time', sa.DateTime(), nullable=True),
     sa.Column('is_superuser', sa.Boolean(), nullable=True),
     sa.Column('is_staff', sa.Boolean(), nullable=True),
     sa.Column('is_active', sa.Boolean(), nullable=True),

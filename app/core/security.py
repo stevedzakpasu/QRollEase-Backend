@@ -5,6 +5,10 @@ from jose import jwt
 
 from app.core.settings import settings
 
+import random
+import string
+
+
 
 
 password_context = CryptContext(schemes=['bcrypt'], deprecated="auto")
@@ -26,3 +30,9 @@ def create_access_token(subject: Any, expires_delta: timedelta = None) -> str:
     to_encode = {"exp": expire, "sub": subject}
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
+
+
+def generate_verification_code(length=6):
+    characters = string.ascii_letters + string.digits
+    verification_code = ''.join(random.choice(characters) for _ in range(length))
+    return verification_code
