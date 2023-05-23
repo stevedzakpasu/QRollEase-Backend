@@ -47,7 +47,7 @@ def get_user_me(
 
 
 @router.post("/users/open", response_model=UserCreateReturn)
-def create_user(
+async def create_user(
     *,
     session: Session = Depends(get_session),
     user_in: UserCreate
@@ -58,7 +58,7 @@ def create_user(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="User with this email already exists"
         )
-    new_user = user.create_by_user(session=session, obj_in=user_in)
+    new_user = await user.create_by_user(session=session, obj_in=user_in)
     return new_user
 
 

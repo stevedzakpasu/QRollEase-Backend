@@ -31,21 +31,3 @@ def create_superuser():
             session.commit()
 
 
-
-def send_verification_code(email: str) -> str:
-    verification_code = generate_verification_code()
-    expiration_time = datetime.now() + datetime.timedelta(minutes=15)  
-
-    with Session(engine) as session:
-        user = User(email=email, verification_code=verification_code, expiration_time=expiration_time)
-        session.add(user)
-        session.commit()
-
-    message = MessageSchema(
-        subject="Account Verification",
-        recipients=[email],
-        body=f"Your verification code is: {verification_code}"
-    )
-    fastmail.send_message(message)
-
-    return verification_code
