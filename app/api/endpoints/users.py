@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session
-from app.api.deps import get_current_active_superuser, get_current_active_user
+from app.api.deps import get_current_active_superuser, get_current_active_user, get_current_user
 from app.core.deps import get_session
 from app.models.user import User
 from app.crud.crud_user import user
@@ -37,6 +37,20 @@ def admin_create_user(
     new_user = user.create_by_admin(session=session, obj_in=user_in)
     return new_user
 
+
+@router.post("/users/verification", dependencies=[Depends(get_current_active_user)])
+def verify_code(*, 
+    code: str, current_user = Depends(get_current_active_user)):
+
+    
+
+    if current_user.verification_code != code:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid verification code"
+        )
+
+    return {"message": "Verification complete"}
 
 @router.get("/users/me", response_model=UserCreateReturn)
 def get_user_me(

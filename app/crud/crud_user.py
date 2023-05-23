@@ -6,7 +6,7 @@ from app.core.security import generate_verification_code, get_hashed_password, v
 from app.models.user import User
 from app.schemas.user import UserAdminCreate, UserUpdate
 from app.crud.base import CRUDBase
-from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
+from fastapi_mail import FastMail, MessageSchema, MessageType
 from app.core.settings import settings
 
 class CRUDUser(CRUDBase[User, UserAdminCreate, UserUpdate]):
@@ -65,11 +65,6 @@ class CRUDUser(CRUDBase[User, UserAdminCreate, UserUpdate]):
             verification_code=verification_code,
             code_expiration_time=code_expiration_time
         )
-
-
-
-
-
         session.add(db_obj)
         session.commit()
         session.refresh(db_obj)
@@ -95,7 +90,17 @@ class CRUDUser(CRUDBase[User, UserAdminCreate, UserUpdate]):
         session.commit()
             
         return db_obj
+    
     def authenticate(self, *, session: Session, email: str, password: str) -> Optional[User]:
+        user = self.get_by_email(session=session, email=email)
+        if not user:
+            return None
+        if not verify_password(password=password, hashed_password=user.hashed_password):
+            return None
+        return user
+    
+    # TO CHANGE
+    def verify(self, *, session: Session, email: str, password: str) -> Optional[User]:
         user = self.get_by_email(session=session, email=email)
         if not user:
             return None
