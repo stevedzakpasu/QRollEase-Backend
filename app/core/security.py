@@ -1,12 +1,16 @@
 from typing import Any
+from fastapi_mail import FastMail, MessageSchema, MessageType
 from passlib.context import CryptContext
 from datetime import timedelta, datetime
 from jose import jwt
-
+from sqlmodel import Session
+from fastapi import HTTPException, status
 from app.core.settings import settings
 
 import random
 import string
+
+from app.models.user import User
 
 
 
@@ -40,27 +44,26 @@ def generate_verification_code(length=6):
 
 
 
-# def resend_verification_code(user: User, session: Session):
-#     # Generate new verification code and expiration time
-#     new_verification_code = generate_verification_code()
-#     new_code_expiration_time = datetime.now() + timedelta(minutes=15)
+async def generate_and_send_verification_code(session: Session, current_user: User):
+        mail = FastMail(settings.CONF)
 
-#     # Update the user's verification code and expiration time in the database
-#     user.verification_code = new_verification_code
-#     user.code_expiration_time = new_code_expiration_time
-#     session.commit()
+        verification_code = generate_verification_code()
+        code_expiration_time = datetime.now() + timedelta(minutes=15)
 
-#     # Send the new verification code via email
-#     message = Message(
-#         subject="New Verification Code",
-#         recipients=[user.email],
-#         body=f"Your new verification code is: {new_verification_code}"
-#     )
-#     try:
-#         mail.send_message(message)
-#     except Exception as e:
-#         # Handle email sending errors appropriately
-#         raise HTTPException(
-#             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-#             detail="Failed to send verification code via email"
-#         )
+        current_user.verification_code = verification_code
+        current_user.code_expiration_time = code_expiration_time
+        session.commit()
+
+        message = MessageSchema(
+            subject="Verification Code",
+            recipients=[current_user.email],
+            body=f"Your verification code is: {verification_code}",
+            subtype=MessageType.html
+        )
+        try:
+            await mail.send_message(message)
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to send verification code via email"
+            )

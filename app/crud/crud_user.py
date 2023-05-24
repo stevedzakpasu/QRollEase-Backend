@@ -1,13 +1,11 @@
-from datetime import datetime, timedelta
 from typing import Optional
-from fastapi import Depends, HTTPException, status
+from fastapi import HTTPException
 from sqlmodel import Session, col, select
-from app.core.security import generate_verification_code, get_hashed_password, verify_password
+from app.core.security import get_hashed_password, verify_password
 from app.models.user import User
 from app.schemas.user import UserAdminCreate, UserUpdate
 from app.crud.base import CRUDBase
-from fastapi_mail import FastMail, MessageSchema, MessageType
-from app.core.settings import settings
+
 
 class CRUDUser(CRUDBase[User, UserAdminCreate, UserUpdate]):
 
@@ -33,16 +31,11 @@ class CRUDUser(CRUDBase[User, UserAdminCreate, UserUpdate]):
         session.add(db_obj)
         session.commit()
         session.refresh(db_obj)
-
-
-  
-
         return db_obj
 
     def create_by_admin(self, *, session: Session, obj_in: UserAdminCreate) -> User:
 
-        verification_code = generate_verification_code()
-        code_expiration_time = datetime.now() + timedelta(minutes=15)
+
 
         db_obj = User(
             first_name=obj_in.first_name,
@@ -52,8 +45,7 @@ class CRUDUser(CRUDBase[User, UserAdminCreate, UserUpdate]):
             is_superuser=obj_in.is_superuser,
             is_staff=obj_in.is_staff,
             is_active=obj_in.is_active,
-            verification_code=verification_code,
-            code_expiration_time=code_expiration_time
+
         )
         session.add(db_obj)
         session.commit()
@@ -88,6 +80,7 @@ class CRUDUser(CRUDBase[User, UserAdminCreate, UserUpdate]):
         if not verify_password(password=password, hashed_password=user.hashed_password):
             return None
         return user
+    
     
     # TO CHANGE
     def verify(self, *, session: Session, email: str, password: str) -> Optional[User]:

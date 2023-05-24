@@ -1,14 +1,11 @@
-from datetime import datetime, timedelta
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi_mail import FastMail, MessageSchema, MessageType
 from sqlmodel import Session
 from app.api.deps import get_current_active_superuser, get_current_active_user
 from app.core.deps import get_session
-from app.core.settings import settings
+from app.core.security import generate_and_send_verification_code
 from app.models.user import User
 from app.crud.crud_user import user
-from app.core.security import generate_verification_code
 from app.schemas.user import UserAdminUpdate, UserCreateReturn, UserRead, UserAdminCreate, UserCreate, UserUpdate
 
 
@@ -56,38 +53,12 @@ def verify_code(*,
     return {"message": "Verification complete"}
 
 
-@router.post("/users/send_verify_code")
-async def generate_code(
+@router.post("/users/send_verification_code")
+async def send_verification_code(
     session: Session = Depends(get_session),
     current_user: User = Depends(get_current_active_user)
 ):
-    mail = FastMail(settings.CONF)
-    
-    # Generate new verification code and expiration time
-    verification_code = generate_verification_code()
-    code_expiration_time = datetime.now() + timedelta(minutes=15)
-
-    # Update the user's verification code and expiration time in the database
-    current_user.verification_code = verification_code
-    current_user.code_expiration_time = code_expiration_time
-    session.commit()
-
-    # Send the new verification code via email
-    message =  MessageSchema(
-        subject="Verification Code",
-        recipients=[current_user.email],
-        body=f"Your verification code is: {verification_code}",
-        subtype=MessageType.html
-    )
-    try:
-        await mail.send_message(message)
-    except Exception as e:
-        # Handle email sending errors appropriately
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to send verification code via email"
-        )
-
+    await generate_and_send_verification_code(session, current_user)
     return {"message": "Verification code generated and sent via email"}
 
     
