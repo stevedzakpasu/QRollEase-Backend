@@ -3,7 +3,7 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_mail import FastMail, MessageSchema, MessageType
 from sqlmodel import Session
-from app.api.deps import get_current_active_superuser, get_current_active_user, get_current_user
+from app.api.deps import get_current_active_superuser, get_current_active_user
 from app.core.deps import get_session
 from app.core.settings import settings
 from app.models.user import User
@@ -41,7 +41,7 @@ def admin_create_user(
     return new_user
 
 
-@router.post("/users/verification", dependencies=[Depends(get_current_active_user)])
+@router.post("/users/verify_code", dependencies=[Depends(get_current_active_user)])
 def verify_code(*, 
     code: str, current_user = Depends(get_current_active_user)):
 
@@ -56,27 +56,27 @@ def verify_code(*,
     return {"message": "Verification complete"}
 
 
-@router.post("/users/regenerate_code")
-async def regenerate_code(
+@router.post("/users/send_verify_code")
+async def generate_code(
     session: Session = Depends(get_session),
     current_user: User = Depends(get_current_active_user)
 ):
     mail = FastMail(settings.CONF)
     
     # Generate new verification code and expiration time
-    new_verification_code = generate_verification_code()
-    new_code_expiration_time = datetime.now() + timedelta(minutes=15)
+    verification_code = generate_verification_code()
+    code_expiration_time = datetime.now() + timedelta(minutes=15)
 
     # Update the user's verification code and expiration time in the database
-    current_user.verification_code = new_verification_code
-    current_user.code_expiration_time = new_code_expiration_time
+    current_user.verification_code = verification_code
+    current_user.code_expiration_time = code_expiration_time
     session.commit()
 
     # Send the new verification code via email
     message =  MessageSchema(
-        subject="New Verification Code",
+        subject="Verification Code",
         recipients=[current_user.email],
-        body=f"Your new verification code is: {new_verification_code}",
+        body=f"Your verification code is: {verification_code}",
         subtype=MessageType.html
     )
     try:
@@ -88,7 +88,7 @@ async def regenerate_code(
             detail="Failed to send verification code via email"
         )
 
-    return {"message": "New verification code generated and sent via email"}
+    return {"message": "Verification code generated and sent via email"}
 
     
 
@@ -103,7 +103,7 @@ def get_user_me(
 
 
 @router.post("/users/open", response_model=UserCreateReturn)
-async def create_user(
+def create_user(
     *,
     session: Session = Depends(get_session),
     user_in: UserCreate
@@ -114,7 +114,7 @@ async def create_user(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="User with this email already exists"
         )
-    new_user = await user.create_by_user(session=session, obj_in=user_in)
+    new_user = user.create_by_user(session=session, obj_in=user_in)
     return new_user
 
 

@@ -19,32 +19,22 @@ class CRUDUser(CRUDBase[User, UserAdminCreate, UserUpdate]):
         return session.exec(select(User).where(col(User.id) == id)).first()
 
     
-    async def create_by_user(self, *, session: Session, obj_in: UserAdminCreate) -> User:
-        verification_code = generate_verification_code()
-        code_expiration_time = datetime.now() + timedelta(minutes=15)
-        mail = FastMail(settings.CONF)
+    def create_by_user(self, *, session: Session, obj_in: UserAdminCreate) -> User:
+    
 
         db_obj = User(
             first_name=obj_in.first_name,
             last_name=obj_in.last_name,
             email=obj_in.email,
             hashed_password=get_hashed_password(obj_in.password),
-            verification_code=verification_code,
-            code_expiration_time=code_expiration_time
+    
         )
 
         session.add(db_obj)
         session.commit()
         session.refresh(db_obj)
 
-        # Sending verification code via email
-        message = MessageSchema(
-        subject="Thanks for registering on our platform!",
-        recipients=[obj_in.email],
-        body=f"Your verification code is: {verification_code}",
-        subtype=MessageType.html)
 
-        await mail.send_message(message)
   
 
         return db_obj
