@@ -99,7 +99,12 @@ class CRUDUser(CRUDBase[User, UserAdminCreate, UserUpdate]):
 
     def is_staff(self, *, user: User) -> bool:
         return user.is_staff
-
     
+    # COME BACK TO THIS, I AM TIREDDDDDDDD
+    # async def verify_user(session: Session, current_user: User):
+    #     current_user.is_verified = True
+    #     session.commit()
+
+
 
 user = CRUDUser(User)
