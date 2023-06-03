@@ -12,8 +12,8 @@ router = APIRouter()
 def verify_code(*, session: Session = Depends(get_session),
     code: str, current_user = Depends(get_current_active_user)):
     if current_user.verification_code == code:
-        #set is_verified to true
-        print("")
+        current_user.is_verified = True
+        session.commit()
     
     else:   
         raise HTTPException(
