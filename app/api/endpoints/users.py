@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import EmailStr
 from sqlmodel import Session
@@ -8,7 +8,7 @@ from app.core.security import generate_and_send_verification_code
 from app.models.user import User
 from app.crud.crud_user import user
 from app.schemas.user import UserAdminUpdate, UserCreateReturn, UserRead, UserAdminCreate, UserCreate, UserUpdate
-
+from app.core.security import generate_verification_code, get_hashed_password
 
 router = APIRouter()
 
@@ -65,17 +65,18 @@ def create_user(
 
 
 @router.post("/users/forgot_password")
-def forgot_password(
+async def forgot_password(
     *,
     session: Session = Depends(get_session),
     email : EmailStr
     ):
     db_user = user.get_by_email(session=session, email=email)
     if db_user:
-        # generate and send verification code
-        pass
+        await generate_and_send_verification_code(session, db_user)
+        return {"message": "Verification code generated and sent via email"}
  
-    else:        raise HTTPException(
+    else:        
+        raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="No user found with this email address!"
         )
@@ -84,21 +85,33 @@ def forgot_password(
 def reset_password(
     *,
     session: Session = Depends(get_session),
-    code : str
-    # maybe email, idk {-_-}
-    # new password too
+    code : str,
+    email : EmailStr,
+    new_password : Optional[str] = None
     ):
+    db_user = user.get_by_email(session=session, email=email)
 
-
-    # check if the user code matches the code entered
-    # if it does ask for new password
-    # else ask for correct code
-    if True:
-        pass
- 
-    else:        raise HTTPException(
+    if not db_user:
+        raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="No user found with this email address!"
+        )
+    
+    
+
+
+    if db_user.verification_code == code:
+        if new_password:
+            db_user.hashed_password = get_hashed_password(new_password)
+            session.commit()
+            return {"message": "Password reset successful!"}
+        else:
+            return {"message":"correct details entered"}
+
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid verification code!"
         )
 
 
