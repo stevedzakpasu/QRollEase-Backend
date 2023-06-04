@@ -67,3 +67,13 @@ async def generate_and_send_verification_code(session: Session, current_user: Us
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Failed to send verification code via email"
             )
+        
+
+def check_is_staff(email):
+
+    username, domain = email.split('@')
+
+    if domain == 'ug.edu.gh' or domain == 'staff.ug.edu.gh':
+        return True
+    else:
+        return False
