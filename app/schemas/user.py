@@ -6,13 +6,10 @@ from sqlalchemy import DateTime
 from sqlalchemy.sql import func
 
 class UserBase(SQLModel):
-    index_number : int|None = Field(
-        index=True, sa_column=Column("index_number", String, unique=True))
     first_name: str
     last_name: str
     email: EmailStr = Field(
-        index=True, sa_column=Column("email", String, unique=True))
-    programme: Optional[str]
+        index=True, sa_column=Column("email", String, unique=True)) 
     created_at: Optional[datetime] = Field(
         sa_column=Column(DateTime(timezone=True), server_default=func.now()))
     updated_at: Optional[datetime] = Field(
@@ -24,7 +21,6 @@ class UserBase(SQLModel):
     is_staff: Optional[bool] = Field(default=False)
     is_active: Optional[bool] = Field(default=True)
     is_verified : Optional[bool] = Field(default=False)
-
 
 
 
@@ -46,8 +42,6 @@ class UserCreateReturn(SQLModel):
     email: EmailStr
 
 
-
-
 class UserRead(UserBase):
     id: int
 
@@ -61,6 +55,5 @@ class UserAdminUpdate(UserBase):
     is_active: Optional[bool] = None
 
 class UserUpdate(SQLModel):
-
-    programme :Optional[str] = None
+    pass
 
