@@ -8,8 +8,8 @@ from app.crud.base import CRUDBase
 class CRUDStudent(CRUDBase[Student, StudentCreate, StudentUpdate]):
 
 
-    def get_by_index_number(self, *, session: Session, index_number: str) -> Student:
-        return session.exec(select(Student).where(col(Student.index_number) == index_number)).first()
+    def get_by_student_id(self, *, session: Session, student_id: str) -> Student:
+        return session.exec(select(Student).where(col(Student.student_id) == student_id)).first()
     
     def get_by_id(self, *, session: Session, id: int) -> Student:
         return session.exec(select(Student).where(col(Student.id) == id)).first()
@@ -23,7 +23,7 @@ class CRUDStudent(CRUDBase[Student, StudentCreate, StudentUpdate]):
     
 
         db_obj = Student(
-            index_number= obj_in.index_number,
+            student_id= obj_in.student_id,
             programme= obj_in.programme,
             user_id= obj_in.user_id
 
@@ -36,8 +36,8 @@ class CRUDStudent(CRUDBase[Student, StudentCreate, StudentUpdate]):
 
 
 
-    def update(self, *, session: Session, index_number: str, obj_in: StudentUpdate) -> Student:
-        db_obj = session.exec(select(Student).where(col(Student.index_number) == index_number)).first()
+    def update(self, *, session: Session, student_id: str, obj_in: StudentUpdate) -> Student:
+        db_obj = session.exec(select(Student).where(col(Student.student_id) == student_id)).first()
         if db_obj: 
             obj_data = obj_in.dict(exclude_unset=True)
             for key, value in obj_data.items():
@@ -47,8 +47,8 @@ class CRUDStudent(CRUDBase[Student, StudentCreate, StudentUpdate]):
             session.refresh(db_obj)
         return db_obj
 
-    def remove(self, *, session: Session, index_number: str) -> Student:
-        db_obj = session.exec(select(Student).where(col(Student.index_number) == index_number)).first()
+    def remove(self, *, session: Session, student_id: str) -> Student:
+        db_obj = session.exec(select(Student).where(col(Student.student_id) == student_id)).first()
         if not db_obj:
             raise HTTPException(status_code=404, detail="Student not found")
         session.delete(db_obj)

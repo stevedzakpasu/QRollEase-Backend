@@ -29,7 +29,7 @@ def create_student(
     user: User = Depends(get_current_active_user)
 
     ):
-    db_student = student.get_by_index_number(session=session, index_number=student_in.index_number)
+    db_student = student.get_by_student_id(session=session, student_id=student_in.student_id)
     
     if db_student:
         raise HTTPException(
@@ -51,13 +51,13 @@ def create_student(
 
 
 
-@router.get("/students/{index_number}", response_model=StudentRead, dependencies=[Depends(get_current_active_superuser)])
+@router.get("/students/{student_id}", response_model=StudentRead, dependencies=[Depends(get_current_active_superuser)])
 def get_student(
     *,
     session: Session = Depends(get_session),
-    index_number: str
+    student_id: str
     ):
-    db_student = student.get_by_id(session=session, index_number=index_number)
+    db_student = student.get_by_id(session=session, student_id=student_id)
     if not db_student:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -71,9 +71,9 @@ def update_student(
     *,
     session: Session = Depends(get_session),
     student_in: StudentUpdate,
-    index_number: str
+    student_id: str
     ):
-    updated_student = student.update(session=session, index_number=index_number, obj_in=student_in)
+    updated_student = student.update(session=session, student_id=student_id, obj_in=student_in)
     if not updated_student:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -87,9 +87,9 @@ def update_student(
 def delete_student(
     *,
     session: Session = Depends(get_session),
-    index_number: str
+    student_id: str
     ):
-    deleted_student = student.remove(session=session, index_number=index_number)
+    deleted_student = student.remove(session=session, student_id=student_id)
     if not deleted_student:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

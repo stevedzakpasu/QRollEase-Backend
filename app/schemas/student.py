@@ -5,8 +5,8 @@ from sqlalchemy import DateTime
 from sqlalchemy.sql import func
 
 class StudentBase(SQLModel):
-    index_number : str = Field(
-        index=True, sa_column=Column("index_number", String, unique=True))
+    student_id : str = Field(
+        index=True, sa_column=Column("student_id", String, unique=True))
     programme: str
     user_id: int = Field(foreign_key="user.id")
     created_at: Optional[datetime] = Field(
@@ -24,7 +24,7 @@ class StudentRead(StudentBase):
 
 
 class StudentUpdate(SQLModel):
-    index_number: Optional[str] = None
+    student_id : Optional[str] = None
     programme: Optional[str] = None
 
 
