@@ -57,7 +57,7 @@ def get_staff(
     session: Session = Depends(get_session),
     staff_id: str
     ):
-    db_staff = staff.get_by_id(session=session, staff_idr=staff_id)
+    db_staff = staff.get_by_id(session=session, staff_id=staff_id)
     if not db_staff:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

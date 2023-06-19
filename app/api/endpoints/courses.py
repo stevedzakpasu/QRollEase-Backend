@@ -20,14 +20,14 @@ def get_courses(
 
 
 
-@router.post("/courses", response_model=CourseRead, dependencies=[Depends(get_current_active_user)])
+@router.post("/courses", response_model=CourseCreate, dependencies=[Depends(get_current_active_user)])
 def create_course(
     *,
     session: Session = Depends(get_session),
     course_in: CourseCreate,
 
     ):
-    db_course= course.get_by_course_code(session=session, course_in=course_in.course_code)
+    db_course= course.get_by_course_code(session=session, course_code=course_in.course_code)
     
     if db_course:
         raise HTTPException(

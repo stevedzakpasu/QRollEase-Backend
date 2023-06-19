@@ -27,7 +27,7 @@ def create_lecture(
     lecture_in: LectureCreate,
 
     ):
-    db_lecture= lecture.get_by_lecture_description(session=session, lecture_in=lecture_in.lecture_description)
+    db_lecture= lecture.get_by_lecture_description(session=session, lecture_description=lecture_in.lecture_description)
     
     if db_lecture:
         raise HTTPException(

@@ -22,7 +22,8 @@ class CRUDLecture(CRUDBase[Lecture, LectureCreate, LectureUpdate]):
 
         db_obj = Lecture(
             course_code= obj_in.course_code,
-            lecture_title = obj_in.lecture_description,
+            lecture_description = obj_in.lecture_description,
+
             lecture_location=obj_in.lecture_location
         )
 
