@@ -14,8 +14,11 @@ class LectureBase(SQLModel):
         sa_column=Column(DateTime(timezone=True), onupdate=func.now())
     )
 
-class LectureCreate(LectureBase):
-    pass
+class LectureCreate(SQLModel):
+    id: int
+    course_code : str =Field(foreign_key="course.course_code")
+    lecture_description: str
+    lecture_location : str
 
 
 class LectureRead(LectureBase):

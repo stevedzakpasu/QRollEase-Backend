@@ -12,7 +12,11 @@ class AttendanceCreate(AttendanceBase):
 
 
 class AttendanceRead(AttendanceBase):
-    id: int
+    pass
+
+class IndividuelAttendanceRead(SQLModel):
+    lecture_id : int
+    
 
 
 class AttendanceUpdate(SQLModel):

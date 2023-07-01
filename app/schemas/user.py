@@ -24,8 +24,16 @@ class UserBase(SQLModel):
 
 
 
-class UserAdminCreate(UserBase):
+class UserAdminCreate(SQLModel):
+    first_name: str
+    last_name: str
+    email: EmailStr = Field(
+        index=True, sa_column=Column("email", String, unique=True)) 
     password: str
+    is_superuser: Optional[bool] = Field(default=False)
+    is_staff: Optional[bool] = Field(default=False)
+    is_active: Optional[bool] = Field(default=True)
+    is_verified : Optional[bool] = Field(default=False)
 
 
 class UserCreate(SQLModel):
@@ -46,13 +54,14 @@ class UserRead(UserBase):
     id: int
 
 
-class UserAdminUpdate(UserBase):
+class UserAdminUpdate(SQLModel):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     email: Optional[EmailStr] = None
-    is_superuser: Optional[bool] = None
-    is_staff: Optional[bool] = None
+    is_superuser: Optional[bool] = False
+    is_staff: Optional[bool] = False
     is_active: Optional[bool] = None
+    is_verified: Optional[bool] = None
 
 class UserUpdate(SQLModel):
     pass
