@@ -25,7 +25,8 @@ def create_superuser():
                 email=settings.SUPERUSER_EMAIL,
                 hashed_password=get_hashed_password(
                     settings.SUPERUSER_PASSWORD),
-                is_superuser=settings.SUPERUSER
+                is_superuser=settings.SUPERUSER,
+                is_verified=settings.VERIFIED
             )
             session.add(new_user)
             session.commit()
