@@ -12,6 +12,8 @@ class CRUDAttendance(CRUDBase[Attendance, AttendanceCreate, AttendanceUpdate]):
     def get_by_id(self, *, session: Session, id: int) -> Attendance:
         return session.exec(select(Attendance).where(col(Attendance.id) == id)).first()
     
+    def get_by_student_and_lecture_id(self, *, session: Session, student_id: str, lecture_id) -> Attendance:
+        return session.exec(select(Attendance).where(Attendance.student_id == student_id and Attendance.lecture_id== lecture_id )).first()
 
 
     
