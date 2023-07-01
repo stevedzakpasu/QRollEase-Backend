@@ -37,6 +37,22 @@ def get_current_active_user(current_user: User = Depends(get_current_user)) -> U
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user")
     return current_user
 
+def get_current_verified_user(current_user: User = Depends(get_current_user)) -> User:
+    if not user.is_verified(user=current_user):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User not verified")
+    
+    return current_user
+
+def get_current_verified_staff(current_user: User = Depends(get_current_user)) -> User:
+    if not user.is_verified(user=current_user) :
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User not verified")
+
+    if not user.is_staff(user=user) or not  user.is_superuser(user=current_user):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Not enough privileges")
+
+    
+
+    return current_user
 
 def get_current_active_superuser(current_user: User = Depends(get_current_user)) -> User:
     if not user.is_superuser(user=current_user):

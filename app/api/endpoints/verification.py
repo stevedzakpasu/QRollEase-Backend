@@ -14,7 +14,7 @@ def verify_code(*, session: Session = Depends(get_session),
                 code: str,
                 current_user=Depends(get_current_active_user)):
     current_time = datetime.datetime.now()
-    expiry_date = current_user.verification_code_expiry
+    expiry_date = current_user.code_expiration_time
 
     if current_user.verification_code == code and current_time < expiry_date:
         current_user.is_verified = True

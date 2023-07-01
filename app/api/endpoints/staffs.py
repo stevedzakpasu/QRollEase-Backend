@@ -1,11 +1,13 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlmodel import Session
-from app.api.deps import get_current_active_superuser, get_current_active_user
+from sqlmodel import Session, select
+from app.api.deps import get_current_active_staff, get_current_active_superuser, get_current_verified_staff
 from app.core.deps import get_session
 from app.crud.crud_staff import staff
+from app.models.staff import Staff
 from app.schemas.staff import StaffUpdate, StaffRead, StaffCreate
 from app.models.user import User
+from app.schemas.user import UserRead
 
 router = APIRouter()
 
@@ -21,12 +23,12 @@ def get_staffs(
 
 
 
-@router.post("/staffs", response_model=StaffRead, dependencies=[Depends(get_current_active_user)])
+@router.post("/staffs", response_model=StaffRead, dependencies=[Depends(get_current_active_staff)])
 def create_staff(
     *,
     session: Session = Depends(get_session),
     staff_in: StaffCreate,
-    user: User = Depends(get_current_active_user)
+    user: User = Depends(get_current_verified_staff)
 
     ):
     db_staff= staff.get_by_staff_id(session=session, staff_in=staff_in.staff_id)
@@ -65,6 +67,17 @@ def get_staff(
         )
     return db_staff
 
+
+@router.get("/staff-personal-info/{staff_id}", response_model=UserRead, dependencies=[Depends(get_current_active_superuser)])
+def get_student_info(staff_id: int, session: Session = Depends(get_session)):
+    query = session.exec(
+        select(User).join(Staff).where(Staff.staff_id == staff_id)
+        )
+    result = query.first()
+        
+    if not result:
+        raise HTTPException(status_code=404, detail="Staff not found")
+    return result
 
 @router.put("/staffs", response_model=StaffRead, dependencies=[Depends(get_current_active_superuser)])
 def update_staff(

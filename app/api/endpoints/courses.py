@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session
-from app.api.deps import get_current_active_superuser, get_current_active_user
+from app.api.deps import get_current_active_superuser, get_current_active_staff
 from app.core.deps import get_session
 from app.crud.crud_course import course
 from app.schemas.course import CourseUpdate, CourseRead, CourseCreate
@@ -20,7 +20,7 @@ def get_courses(
 
 
 
-@router.post("/courses", response_model=CourseCreate, dependencies=[Depends(get_current_active_user)])
+@router.post("/courses", response_model=CourseCreate, dependencies=[Depends(get_current_active_staff)])
 def create_course(
     *,
     session: Session = Depends(get_session),
@@ -48,7 +48,7 @@ def get_course(
     session: Session = Depends(get_session),
     course_id: str
     ):
-    db_course = course.get_by_id(session=session, course_idr=course_id)
+    db_course = course.get_by_id(session=session, course_id=course_id)
     if not db_course:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

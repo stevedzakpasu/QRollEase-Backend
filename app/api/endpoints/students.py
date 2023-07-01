@@ -1,11 +1,14 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlmodel import Session
-from app.api.deps import get_current_active_superuser, get_current_active_user
+from sqlmodel import Session, select
+from app.api.deps import get_current_active_superuser, get_current_active_user, get_current_verified_user
 from app.core.deps import get_session
 from app.crud.crud_student import student
+from app.models.student import Student
 from app.schemas.student import StudentUpdate, StudentRead, StudentCreate
 from app.models.user import User
+from app.schemas.user import UserRead
+
 
 router = APIRouter()
 
@@ -21,7 +24,32 @@ def get_students(
 
 
 
-@router.post("/students", response_model=StudentRead, dependencies=[Depends(get_current_active_user)])
+@router.get("/students/{student_id}", response_model=StudentRead, dependencies=[Depends(get_current_active_superuser)])
+def get_student(
+    *,
+    session: Session = Depends(get_session),
+    student_id: str
+    ):
+    db_student = student.get_by_student_id(session=session, student_id=student_id)
+    if not db_student:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Student not found"
+        )
+    return db_student
+
+@router.get("/student-personal-info/{student_id}", response_model=UserRead, dependencies=[Depends(get_current_active_superuser)])
+def get_student_info(student_id: int, session: Session = Depends(get_session)):
+    query = session.exec(
+        select(User).join(Student).where(Student.student_id == student_id)
+        )
+    result = query.first()
+        
+    if not result:
+        raise HTTPException(status_code=404, detail="Student not found")
+    return result
+
+@router.post("/students", response_model=StudentRead, dependencies=[Depends(get_current_verified_user)])
 def create_student(
     *,
     session: Session = Depends(get_session),
@@ -51,19 +79,7 @@ def create_student(
 
 
 
-@router.get("/students/{student_id}", response_model=StudentRead, dependencies=[Depends(get_current_active_superuser)])
-def get_student(
-    *,
-    session: Session = Depends(get_session),
-    student_id: str
-    ):
-    db_student = student.get_by_id(session=session, student_id=student_id)
-    if not db_student:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
-        )
-    return db_student
+
 
 
 @router.put("/students", response_model=StudentRead, dependencies=[Depends(get_current_active_superuser)])
