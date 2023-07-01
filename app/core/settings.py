@@ -23,6 +23,8 @@ class Settings(BaseSettings):
     SUPERUSER_LASTNAME: str = "Admin"
     SUPERUSER_PASSWORD: str = "admin"
     SUPERUSER: bool = True
+    VERIFIED: bool = True
+
 
     CONF = ConnectionConfig(
     MAIL_USERNAME = "qrollease@gmail.com",
