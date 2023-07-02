@@ -12,7 +12,10 @@ class CRUDCourse(CRUDBase[Course, CourseCreate, CourseUpdate]):
         return session.exec(select(Course).where(col(Course.course_code) == course_code)).first()
     
     def get_by_id(self, *, session: Session, id: int) -> Course:
-        return session.exec(select(Course).where(col(Course.id) == id)).first()    
+        return session.exec(select(Course).where(col(Course.id) == id)).first()  
+
+    def get_by_course_code(self, *, session: Session, course_code: str) -> Course:
+        return session.exec(select(Course).where(col(Course.course_code) == course_code)).first()    
     
     
     def get_by_staff_id(self, *, session: Session, id: int) -> Course:

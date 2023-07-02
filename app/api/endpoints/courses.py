@@ -42,13 +42,13 @@ def create_course(
 
 
 
-@router.get("/courses/{course_id}", response_model=CourseRead, dependencies=[Depends(get_current_active_superuser)])
+@router.get("/courses/{course_code}", response_model=CourseRead, dependencies=[Depends(get_current_active_superuser)])
 def get_course(
     *,
     session: Session = Depends(get_session),
-    course_id: str
+    course_code: str
     ):
-    db_course = course.get_by_id(session=session, course_id=course_id)
+    db_course = course.get_by_course_code(session=session, course_code=course_code)
     if not db_course:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
