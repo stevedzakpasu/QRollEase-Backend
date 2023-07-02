@@ -32,6 +32,19 @@ def get_all_lectures(
         )
     return lectures
 
+@router.get("/lectures/id/{lecture_id}", response_model=LectureRead, dependencies=[Depends(get_current_active_superuser)])
+def get_lecture(
+    *,
+    session: Session = Depends(get_session),
+    lecture_id: int
+    ):
+    db_lecture = lecture.get_by_id(session=session, id=lecture_id)
+    if not db_lecture:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Lecture not found"
+        )
+    return db_lecture
 @router.post("/lectures", response_model=LectureRead, dependencies=[Depends(get_current_verified_staff)])
 def create_lecture(
     *,
@@ -54,19 +67,6 @@ def create_lecture(
 
 
 
-@router.get("/lectures/{lecture_id}", response_model=LectureRead, dependencies=[Depends(get_current_active_superuser)])
-def get_lecture(
-    *,
-    session: Session = Depends(get_session),
-    lecture_id: int
-    ):
-    db_lecture = lecture.get_by_id(session=session, lecture_id=lecture_id)
-    if not db_lecture:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Lecture not found"
-        )
-    return db_lecture
 
 
 
