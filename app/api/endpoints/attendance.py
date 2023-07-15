@@ -124,6 +124,25 @@ def get_attendance(
     return db_attendance
 
 
+@router.get("/my_attendance/", response_model=List[AttendanceRead], dependencies=[Depends(get_current_verified_user)])
+def get_my_attendance(
+    *,
+    session: Session = Depends(get_session),
+    user: User = Depends(get_current_verified_user)
+    ):
+    current_student = session.exec(
+        select(Student).join(User).where(User.id == user.id)
+        ).first()
+    
+
+    db_attendance = session.exec((select(Attendance).where(Attendance.student_id == current_student.student_id))).all()
+    if not db_attendance:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Attendance not found"
+        )
+    return db_attendance
+
 @router.get("/attendances/{student_id}", response_model=List[AttendanceRead], dependencies=[Depends(get_current_active_superuser)])
 def get_individual_attendance(
     *,
