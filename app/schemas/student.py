@@ -1,8 +1,13 @@
 from datetime import datetime
-from typing import Optional
-from sqlmodel import SQLModel, Field, Column, String
+from typing import List, Optional, TYPE_CHECKING
+from sqlmodel import Relationship, SQLModel, Field, Column, String
 from sqlalchemy import DateTime
 from sqlalchemy.sql import func
+
+from app.models.studentcourse import StudentCourse
+
+if TYPE_CHECKING:
+    from app.models.course import Course
 
 class StudentBase(SQLModel):
     student_id : str = Field(
@@ -14,6 +19,7 @@ class StudentBase(SQLModel):
     updated_at: Optional[datetime] = Field(
         sa_column=Column(DateTime(timezone=True), onupdate=func.now())
     )
+    courses: List["Course"] = Relationship(back_populates="students", link_model=StudentCourse)
 
 class StudentCreate(StudentBase):
     pass
