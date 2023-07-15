@@ -4,7 +4,10 @@ from sqlmodel import Session, select
 from app.api.deps import get_current_active_superuser, get_current_active_user, get_current_verified_user
 from app.core.deps import get_session
 from app.crud.crud_student import student
+from app.crud.crud_course import course
+from app.models.course import Course
 from app.models.student import Student
+from app.models.studentcourse import StudentCourse
 from app.schemas.student import StudentUpdate, StudentRead, StudentCreate
 from app.models.user import User
 from app.schemas.user import UserRead
@@ -78,7 +81,30 @@ def create_student(
 
 
 
+@router.post("/students/me/courses/add",  dependencies=[Depends(get_current_active_user)])
+async def add_course_to_student(
+    course_code: str,
+    session: Session = Depends(get_session),
+    user: User = Depends(get_current_active_user)
+):
 
+    db_student = student.get_by_user_id(session=session, user_id=user.id)
+    
+    if not db_student:
+        raise HTTPException(status_code=404, detail="Student not found")
+
+    db_course = course.get_by_course_code(session=session, course_code=course_code)
+
+
+    if not db_course:
+        raise HTTPException(status_code=404, detail="Student not found")
+      
+    student_link = StudentCourse(student_id=db_student.student_id,course_code=db_course.course_code) 
+
+    session.add(student_link)
+    session.commit()
+
+    return {"message": "Course added successfully"}
 
 
 

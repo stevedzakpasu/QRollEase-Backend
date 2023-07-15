@@ -5,10 +5,11 @@ from app.api.deps import get_current_active_staff, get_current_active_superuser,
 from app.core.deps import get_session
 from app.crud.crud_staff import staff
 from app.models.staff import Staff
+from app.models.staffcourse import StaffCourse
 from app.schemas.staff import StaffUpdate, StaffRead, StaffCreate
 from app.models.user import User
 from app.schemas.user import UserRead
-
+from app.crud.crud_course import course
 router = APIRouter()
 
 @router.get("/staffs", response_model=List[StaffRead], dependencies=[Depends(get_current_active_superuser)])
@@ -51,6 +52,31 @@ def create_staff(
     return new_staff
 
 
+
+@router.post("/staffs/me/courses/add",  dependencies=[Depends(get_current_active_staff)])
+async def add_course_to_staff(
+    course_code: str,
+    session: Session = Depends(get_session),
+    user: User = Depends(get_current_active_staff)
+): 
+
+    db_staff = staff.get_by_user_id(session=session, user_id=user.id)
+    
+    if not db_staff:
+        raise HTTPException(status_code=404, detail="Staff not found")
+
+    db_course = course.get_by_course_code(session=session, course_code=course_code)
+
+
+    if not db_course:
+        raise HTTPException(status_code=404, detail="Course not found")
+      
+    staff_link = StaffCourse(staff_id=db_staff.staff_id,course_code=db_course.course_code) 
+
+    session.add(staff_link)
+    session.commit()
+
+    return {"message": "Course added successfully"}
 
 
 @router.get("/staffs/{staff_id}", response_model=StaffRead, dependencies=[Depends(get_current_active_superuser)])
