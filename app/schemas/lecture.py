@@ -13,7 +13,7 @@ class LectureBase(SQLModel):
     updated_at: Optional[datetime] = Field(
         sa_column=Column(DateTime(timezone=True), onupdate=func.now())
     )
-
+    
 class LectureCreate(SQLModel):
     id: int
     course_code : str =Field(foreign_key="course.course_code")
@@ -21,8 +21,10 @@ class LectureCreate(SQLModel):
     lecture_location : str
 
 
-class LectureRead(LectureBase):
-    id: int
+class LectureRead(LectureCreate):
+    course_code : str =Field(foreign_key="course.course_code")
+    lecture_description: str
+    lecture_location : str
 
 
 class LectureUpdate(SQLModel): 
