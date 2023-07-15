@@ -1,8 +1,13 @@
 from datetime import datetime
-from typing import Optional
-from sqlmodel import SQLModel, Field, Column, String
+from typing import List, Optional
+from sqlmodel import Relationship, SQLModel, Field, Column, String
 from sqlalchemy import DateTime
 from sqlalchemy.sql import func
+
+from app.models.staff import Staff
+from app.models.staffcourse import StaffCourse
+from app.models.student import Student
+from app.models.studentcourse import StudentCourse
 
 class CourseBase(SQLModel):
     course_code : str = Field(
@@ -13,6 +18,8 @@ class CourseBase(SQLModel):
     updated_at: Optional[datetime] = Field(
         sa_column=Column(DateTime(timezone=True), onupdate=func.now())
     )
+    staffs: List["Staff"] = Relationship(back_populates="courses", link_model=StaffCourse)
+    students: List["Student"] = Relationship(back_populates="courses", link_model=StudentCourse)
 
 class CourseCreate(CourseBase):
     pass
