@@ -48,6 +48,10 @@ class UserCreateReturn(SQLModel):
     first_name: str
     last_name: str
     email: EmailStr
+    is_superuser: bool
+    is_staff: bool
+    is_active: bool
+    is_verified : bool
 
 
 class UserRead(UserBase):
