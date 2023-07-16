@@ -1,11 +1,16 @@
+import os
 import secrets
 from typing import Any
 from pydantic import AnyHttpUrl, BaseSettings, EmailStr
 from fastapi_mail import ConnectionConfig
+from dotenv import load_dotenv
 
+load_dotenv()  # take environment variables from .env
 class Settings(BaseSettings):
 
-    DATABASE_URL: str = "sqlite:///app/database.db"
+    
+
+    DATABASE_URL: str = os.environ.get("DATABASE_URL").replace("postgres://", "postgresql://", 1)
     PROJECT_NAME: str = "QRollEase API"
 
 
@@ -28,7 +33,7 @@ class Settings(BaseSettings):
 
     CONF = ConnectionConfig(
     MAIL_USERNAME = "qrollease@gmail.com",
-    MAIL_PASSWORD = "umecplnsxtteboak",
+    MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD"),
     MAIL_FROM = "qrollease@gmail.com",
     MAIL_PORT = 587,
     MAIL_SERVER = "smtp.gmail.com",

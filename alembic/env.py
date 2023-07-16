@@ -1,4 +1,5 @@
 from logging.config import fileConfig
+import os
 from sqlmodel import SQLModel
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
@@ -6,9 +7,18 @@ from sqlalchemy import pool
 from alembic import context
 
 from app.models import user, student, staff, course, staffcourse, studentcourse, lecture, attendance
+
+
+
+from dotenv import load_dotenv
+
+load_dotenv()  # take environment variables from .env
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
+
+
+config.set_main_option('sqlalchemy.url',os.environ.get("DATABASE_URL").replace("postgres://", "postgresql://", 1))
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
