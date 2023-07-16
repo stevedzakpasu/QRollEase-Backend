@@ -1,6 +1,4 @@
 import os
-import secrets
-from typing import Any
 from pydantic import AnyHttpUrl, BaseSettings, EmailStr
 from fastapi_mail import ConnectionConfig
 from dotenv import load_dotenv
@@ -8,13 +6,11 @@ from dotenv import load_dotenv
 load_dotenv()  # take environment variables from .env
 class Settings(BaseSettings):
 
-    
-
     DB_URL: str = os.environ.get("DB_URL")
     PROJECT_NAME: str = "QRollEase API"
 
 
-    SECRET_KEY: str = secrets.token_urlsafe(32)
+    SECRET_KEY: str = os.environ.get("SECRET_KEY")
     ACCESS_TOKEN_EXPIRE_MINUTES_WEB: int = 60 * 24 * 2
     ACCESS_TOKEN_EXPIRE_MINUTES_MOBILE: int = 60 * 24 * 3000
     ALGORITHM: str = "HS256"
