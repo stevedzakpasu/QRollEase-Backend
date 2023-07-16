@@ -10,7 +10,7 @@ class Settings(BaseSettings):
 
     
 
-    DATABASE_URL: str = os.environ.get("DATABASE_URL")
+    DB_URL: str = os.environ.get("DB_URL")
     PROJECT_NAME: str = "QRollEase API"
 
 
