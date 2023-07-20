@@ -20,6 +20,7 @@ class StudentBase(SQLModel):
         sa_column=Column(DateTime(timezone=True), onupdate=func.now())
     )
     courses: List["Course"] = Relationship(back_populates="students", link_model=StudentCourse)
+    facial_features: List[float] = Field(default=[])
 
 class StudentCreate(StudentBase):
     pass
@@ -32,5 +33,6 @@ class StudentRead(StudentBase):
 class StudentUpdate(SQLModel):
     student_id : Optional[str] = None
     programme: Optional[str] = None
+    facial_features: Optional[List[float]] = None
 
 
