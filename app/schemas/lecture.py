@@ -13,35 +13,26 @@ class LectureBase(SQLModel):
     updated_at: Optional[datetime] = Field(
         sa_column=Column(DateTime(timezone=True), onupdate=func.now())
     )
-    latitude:float
-    longitude:float
-    accuracy:float
+
     
 class LectureCreate(SQLModel):
     id: int
     course_code : str =Field(foreign_key="course.course_code")
     lecture_description: str
     lecture_location : str
-    latitude:float
-    longitude:float
-    accuracy:float
+
 
 
 class LectureRead(LectureCreate):
     course_code : str =Field(foreign_key="course.course_code")
     lecture_description: str
     lecture_location : str
-    latitude:float
-    longitude:float
-    accuracy:float
+
 
 
 class LectureUpdate(SQLModel): 
     course_code: Optional[str] = None
     lecture_description: Optional[str] = None
     lecture_location: Optional[str] = None
-    latitude:Optional[float] = None
-    longitude:Optional[float] = None
-    accuracy:Optional[float] = None
 
 
