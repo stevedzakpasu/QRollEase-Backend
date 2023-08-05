@@ -20,13 +20,16 @@ class StudentBase(SQLModel):
         sa_column=Column(DateTime(timezone=True), onupdate=func.now())
     )
     courses: List["Course"] = Relationship(back_populates="students", link_model=StudentCourse)
-    facial_features: List[float] = Field(default=[])
+
 
 class StudentCreate(StudentBase):
-    pass
+    student_id : str = Field(
+        index=True, sa_column=Column("student_id", String, unique=True))
+    programme: str
+    user_id: int = Field(foreign_key="user.id")
 
 
-class StudentRead(StudentBase):
+class StudentRead(StudentCreate):
     id: int
 
 

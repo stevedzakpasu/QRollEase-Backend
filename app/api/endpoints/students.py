@@ -15,6 +15,19 @@ from app.schemas.user import UserRead
 
 router = APIRouter()
 
+
+@router.get("/students/me", response_model=StudentRead, dependencies=[Depends(get_current_verified_user)])
+def get_student_me(
+    session: Session = Depends(get_session),
+    user: User = Depends(get_current_active_user)
+):
+    db_student = student.get_by_user_id(session=session, user_id=user.id)
+
+    if not db_student:
+        raise HTTPException(status_code=404, detail="Student not found")
+
+    return db_student
+
 @router.get("/students", response_model=List[StudentRead], dependencies=[Depends(get_current_active_superuser)])
 def get_students(
     *, 
@@ -138,3 +151,24 @@ def delete_student(
             detail="Student not found"
         )
     return {"success": "Student deleted successfully"}
+
+
+@router.get("/students/me/courses", response_model=List[Course], dependencies=[Depends(get_current_active_user)])
+def get_student_courses(
+    session: Session = Depends(get_session),
+    user: User = Depends(get_current_active_user)
+):
+    db_student = student.get_by_user_id(session=session, user_id=user.id)
+
+    if not db_student:
+        raise HTTPException(status_code=404, detail="Student not found")
+
+    student_courses = session.exec(
+        select(Course)
+        .join(StudentCourse, Course.course_code == StudentCourse.course_code)
+        .where(StudentCourse.student_id == db_student.student_id)
+    ).all()
+
+    return student_courses
+
+
