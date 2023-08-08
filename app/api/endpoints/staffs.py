@@ -4,6 +4,7 @@ from sqlmodel import Session, select
 from app.api.deps import get_current_active_staff, get_current_active_superuser, get_current_verified_staff
 from app.core.deps import get_session
 from app.crud.crud_staff import staff
+from app.models.course import Course
 from app.models.staff import Staff
 from app.models.staffcourse import StaffCourse
 from app.schemas.staff import StaffUpdate, StaffRead, StaffCreate
@@ -135,3 +136,24 @@ def delete_staff(
             detail="Staff not found"
         )
     return {"success": "Staff deleted successfully"}
+
+
+
+@router.get("/staffs/me/courses", response_model=List[Course], dependencies=[Depends(get_current_active_staff)])
+def get_student_courses(
+    session: Session = Depends(get_session),
+    user: User = Depends(get_current_active_staff)
+):
+    db_staff = staff.get_by_user_id(session=session, user_id=user.id)
+
+    if not db_staff:
+        raise HTTPException(status_code=404, detail="Staff not found")
+
+    staff_courses = session.exec(
+        select(Course)
+        .join(StaffCourse, Course.course_code == StaffCourse.course_code)
+        .where(StaffCourse.staff_id == db_staff.staff_id)
+    ).all()
+
+    return staff_courses
+
