@@ -33,7 +33,7 @@ def create_staff(
     user: User = Depends(get_current_verified_staff)
 
     ):
-    db_staff= staff.get_by_staff_id(session=session, staff_in=staff_in.staff_id)
+    db_staff= staff.get_by_staff_id(session=session, staff_id=staff_in.staff_id)
     
     if db_staff:
         raise HTTPException(
