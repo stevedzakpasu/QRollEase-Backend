@@ -13,6 +13,19 @@ from app.schemas.user import UserRead
 from app.crud.crud_course import course
 router = APIRouter()
 
+
+@router.get("/staffs/me", response_model=StaffRead, dependencies=[Depends(get_current_verified_staff)])
+def get_staff_me(
+    session: Session = Depends(get_session),
+    user: User = Depends(get_current_active_staff)
+):
+    db_staff = staff.get_by_user_id(session=session, user_id=user.id)
+
+    if not db_staff:
+        raise HTTPException(status_code=404, detail="Staff not found")
+
+    return db_staff
+
 @router.get("/staffs", response_model=List[StaffRead], dependencies=[Depends(get_current_active_superuser)])
 def get_staffs(
     *, 
