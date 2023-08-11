@@ -7,6 +7,7 @@ from app.core.deps import get_session
 from app.core.security import generate_and_send_verification_code
 from app.models.user import User
 from app.crud.crud_user import user
+from app.schemas.reset_password_request import ResetPasswordRequest
 from app.schemas.user import UserAdminUpdate, UserCreateReturn, UserRead, UserAdminCreate, UserCreate, UserUpdate
 from app.core.security import generate_verification_code, get_hashed_password
 
@@ -85,11 +86,9 @@ async def forgot_password(
 def reset_password(
     *,
     session: Session = Depends(get_session),
-    code : str,
-    email : EmailStr,
-    new_password : Optional[str] = None
+    reset_data: ResetPasswordRequest,
     ):
-    db_user = user.get_by_email(session=session, email=email)
+    db_user = user.get_by_email(session=session, email=reset_data.email)
 
     if not db_user:
         raise HTTPException(
@@ -100,9 +99,9 @@ def reset_password(
     
 
 
-    if db_user.verification_code == code:
-        if new_password:
-            db_user.hashed_password = get_hashed_password(new_password)
+    if db_user.verification_code == reset_data.code:
+        if reset_data.new_password:
+            db_user.hashed_password = get_hashed_password(reset_data.new_password)
             session.commit()
             return {"message": "Password reset successful!"}
         else:
