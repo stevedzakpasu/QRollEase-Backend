@@ -18,7 +18,7 @@ def get_lectures(
     lectures = lecture.get_multiple(session=session, offset=offset, limit=limit)
     return lectures
 
-@router.get("/lectures/{course_code}", response_model=List[LectureRead], dependencies=[Depends(get_current_active_superuser)])
+@router.get("/lectures/{course_code}", response_model=List[LectureRead], dependencies=[Depends(get_current_active_staff)])
 def get_all_lectures(
     *,
     session: Session = Depends(get_session),
