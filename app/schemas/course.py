@@ -21,8 +21,10 @@ class CourseBase(SQLModel):
     staffs: List["Staff"] = Relationship(back_populates="courses", link_model=StaffCourse)
     students: List["Student"] = Relationship(back_populates="courses", link_model=StudentCourse)
 
-class CourseCreate(CourseBase):
-    pass
+class CourseCreate(SQLModel):
+    course_code : str = Field(
+        index=True, sa_column=Column("course_code", String, unique=True))
+    course_title: str
 
 
 class CourseRead(CourseBase):
