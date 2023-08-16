@@ -4,6 +4,7 @@ from sqlmodel import Session
 from app.api.deps import get_current_active_staff, get_current_active_superuser, get_current_active_user, get_current_verified_staff
 from app.core.deps import get_session
 from app.crud.crud_lecture import lecture
+from app.crud.crud_course import course
 from app.schemas.lecture import LectureUpdate, LectureRead, LectureCreate
 
 router = APIRouter()
@@ -52,16 +53,22 @@ def create_lecture(
     lecture_in: LectureCreate,
 
     ):
-    db_lecture_description= lecture.get_by_lecture_description(session=session, lecture_description=lecture_in.lecture_description)
-    db_lecture= lecture.get_by_course_code(session=session, course_code=lecture_in.course_code)
+    existing_lecture= lecture.get_by_lecture_description_and_course_code(session=session, lecture_description=lecture_in.lecture_description,course_code=lecture_in.course_code)
 
+    db_course = course.get_by_course_code(session=session, course_code=lecture_in.course_code)
     
-    if db_lecture and db_lecture_description:
+    if existing_lecture:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Lecture with this lecture description already exists"
         )
-    
+
+    if db_course:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="The course code entered does not exist"
+        )
+
 
     new_lecture = lecture.create(session=session, obj_in=lecture_in)
     return new_lecture
