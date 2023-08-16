@@ -45,7 +45,7 @@ def get_lecture(
             detail="Lecture not found"
         )
     return db_lecture
-@router.post("/lectures", response_model=LectureRead, dependencies=[Depends(get_current_verified_staff)])
+@router.post("/lectures", response_model=LectureCreate, dependencies=[Depends(get_current_verified_staff)])
 def create_lecture(
     *,
     session: Session = Depends(get_session),

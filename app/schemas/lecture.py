@@ -15,7 +15,7 @@ class LectureBase(SQLModel):
     )
 
     
-class LectureCreate(SQLModel):
+class LectureRead(SQLModel):
     id: int
     course_code : str =Field(foreign_key="course.course_code")
     lecture_description: str
@@ -23,7 +23,7 @@ class LectureCreate(SQLModel):
 
 
 
-class LectureRead(LectureCreate):
+class LectureCreate(SQLModel):
     course_code : str =Field(foreign_key="course.course_code")
     lecture_description: str
     lecture_location : str
