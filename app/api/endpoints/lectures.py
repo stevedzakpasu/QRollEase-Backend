@@ -63,7 +63,7 @@ def create_lecture(
             detail="Lecture with this lecture description already exists"
         )
 
-    if db_course:
+    if not db_course:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="The course code entered does not exist"
