@@ -51,8 +51,8 @@ class CRUDLecture(CRUDBase[Lecture, LectureCreate, LectureUpdate]):
             session.refresh(db_obj)
         return db_obj
 
-    def remove(self, *, session: Session, lecture_ld: int) -> Lecture:
-        db_obj = session.exec(select(Lecture).where(col(Lecture.id) == lecture_ld)).first()
+    def remove(self, *, session: Session, lecture_id: int) -> Lecture:
+        db_obj = session.exec(select(Lecture).where(col(Lecture.id) == lecture_id)).first()
         if not db_obj:
             raise HTTPException(status_code=404, detail="Lecture not found")
         session.delete(db_obj)
