@@ -15,19 +15,24 @@ class LectureBase(SQLModel):
     )
 
     
-class LectureRead(SQLModel):
+class StaffLectureRead(SQLModel):
+    id: int
+    course_code : str =Field(foreign_key="course.course_code")
+    lecture_description: str
+    lecture_location : str
+    lecture_secret: str 
+
+
+class StudentLectureRead(SQLModel):
     id: int
     course_code : str =Field(foreign_key="course.course_code")
     lecture_description: str
     lecture_location : str
 
-
-
 class LectureCreate(SQLModel):
     course_code : str =Field(foreign_key="course.course_code")
     lecture_description: str
     lecture_location : str
-
 
 
 class LectureUpdate(SQLModel): 

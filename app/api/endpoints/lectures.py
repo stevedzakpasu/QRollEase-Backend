@@ -5,11 +5,11 @@ from app.api.deps import get_current_active_staff, get_current_active_superuser,
 from app.core.deps import get_session
 from app.crud.crud_lecture import lecture
 from app.crud.crud_course import course
-from app.schemas.lecture import LectureUpdate, LectureRead, LectureCreate
+from app.schemas.lecture import LectureUpdate, StaffLectureRead,StudentLectureRead, LectureCreate
 
 router = APIRouter()
 
-@router.get("/lectures", response_model=List[LectureRead], dependencies=[Depends(get_current_active_superuser)])
+@router.get("/lectures", response_model=List[StaffLectureRead], dependencies=[Depends(get_current_active_superuser)])
 def get_lectures(
     *, 
     session: Session = Depends(get_session),
@@ -19,7 +19,7 @@ def get_lectures(
     lectures = lecture.get_multiple(session=session, offset=offset, limit=limit)
     return lectures
 
-@router.get("/lectures/{course_code}", response_model=List[LectureRead], dependencies=[Depends(get_current_active_user)])
+@router.get("/lectures/{course_code}", response_model=List[StudentLectureRead], dependencies=[Depends(get_current_active_user)])
 def get_all_lectures(
     *,
     session: Session = Depends(get_session),
@@ -33,7 +33,21 @@ def get_all_lectures(
         )
     return lectures
 
-@router.get("/lectures/id/{lecture_id}", response_model=LectureRead, dependencies=[Depends(get_current_active_superuser)])
+@router.get("/lectures/staff/{course_code}", response_model=List[StaffLectureRead], dependencies=[Depends(get_current_active_staff)])
+def staff_get_all_lectures(
+    *,
+    session: Session = Depends(get_session),
+    course_code: str
+    ):
+    lectures = lecture.get_by_course_code(session=session, course_code=course_code)
+    if not lectures:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No lectures for this course"
+        )
+    return lectures
+
+@router.get("/lectures/id/{lecture_id}", response_model=StaffLectureRead, dependencies=[Depends(get_current_active_superuser)])
 def get_lecture(
     *,
     session: Session = Depends(get_session),
@@ -76,7 +90,7 @@ def create_lecture(
 
 
 
-@router.put("/lectures", response_model=LectureRead, dependencies=[Depends(get_current_active_superuser)])
+@router.put("/lectures", response_model=StaffLectureRead, dependencies=[Depends(get_current_active_superuser)])
 def update_lecture(
     *,
     session: Session = Depends(get_session),
