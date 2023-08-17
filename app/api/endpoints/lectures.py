@@ -53,15 +53,11 @@ def create_lecture(
     lecture_in: LectureCreate,
 
     ):
-    existing_lecture= lecture.get_by_lecture_description_and_course_code(session=session, lecture_description=lecture_in.lecture_description,course_code=lecture_in.course_code)
+
 
     db_course = course.get_by_course_code(session=session, course_code=lecture_in.course_code)
     
-    if existing_lecture:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Lecture with this lecture description already exists"
-        )
+ 
 
     if not db_course:
         raise HTTPException(
