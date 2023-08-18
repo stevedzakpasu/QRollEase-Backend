@@ -17,6 +17,9 @@ class CRUDLecture(CRUDBase[Lecture, LectureCreate, LectureUpdate]):
     def get_by_id(self, *, session: Session, id: int) -> Lecture:
         return session.exec(select(Lecture).where(col(Lecture.id) == id)).first()
     
+    def get_by_secret(self, *, session: Session, lecture_secret: str) -> Lecture:
+        return session.exec(select(Lecture).where(col(Lecture.lecture_secret) == lecture_secret)).first()
+    
     def get_by_course_code(self, *, session: Session, course_code: str) -> Lecture:
         return session.exec(select(Lecture).where(col(Lecture.course_code) == course_code)).all()
     

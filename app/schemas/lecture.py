@@ -20,7 +20,7 @@ class StaffLectureRead(SQLModel):
     course_code : str =Field(foreign_key="course.course_code")
     lecture_description: str
     lecture_location : str
-    lecture_secret: str 
+    lecture_secret: Optional[str]
 
 
 class StudentLectureRead(SQLModel):
@@ -39,5 +39,6 @@ class LectureUpdate(SQLModel):
     course_code: Optional[str] = None
     lecture_description: Optional[str] = None
     lecture_location: Optional[str] = None
+    lecture_secret: Optional[str] = None
 
 

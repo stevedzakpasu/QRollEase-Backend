@@ -1,8 +1,8 @@
-"""updated tables
+"""created tables
 
-Revision ID: b2a3816b2db0
+Revision ID: 4d14c8c2149a
 Revises: 
-Create Date: 2023-08-05 12:48:34.630447
+Create Date: 2023-08-18 10:35:29.055959
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 import sqlmodel.sql.sqltypes
 
 # revision identifiers, used by Alembic.
-revision = 'b2a3816b2db0'
+revision = '4d14c8c2149a'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -47,15 +47,14 @@ def upgrade() -> None:
     op.create_table('lecture',
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
+    sa.Column('lecture_secret', sa.String(), nullable=True),
     sa.Column('course_code', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('lecture_description', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('lecture_location', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-    sa.Column('latitude', sa.Float(), nullable=False),
-    sa.Column('longitude', sa.Float(), nullable=False),
-    sa.Column('accuracy', sa.Float(), nullable=False),
     sa.Column('id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['course_code'], ['course.course_code'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('lecture_secret')
     )
     op.create_table('staff',
     sa.Column('staff_id', sa.String(), nullable=True),
@@ -81,10 +80,10 @@ def upgrade() -> None:
     )
     op.create_table('attendance',
     sa.Column('student_id', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-    sa.Column('lecture_id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['lecture_id'], ['lecture.id'], ),
+    sa.Column('lecture_secret', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.ForeignKeyConstraint(['lecture_secret'], ['lecture.lecture_secret'], ),
     sa.ForeignKeyConstraint(['student_id'], ['student.student_id'], ),
-    sa.PrimaryKeyConstraint('student_id', 'lecture_id')
+    sa.PrimaryKeyConstraint('student_id', 'lecture_secret')
     )
     op.create_table('staffcourse',
     sa.Column('staff_id', sqlmodel.sql.sqltypes.AutoString(), nullable=False),

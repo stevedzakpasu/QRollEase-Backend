@@ -11,7 +11,7 @@ from app.models.attendance import Attendance
 from app.models.lecture import Lecture
 from app.models.student import Student
 from app.models.user import User
-from app.schemas.attendance import AttendanceUpdate, AttendanceRead, AttendanceCreate, IndividuelAttendanceRead
+from app.schemas.attendance import AttendanceUpdate, AttendanceRead, AttendanceCreate
 
 router = APIRouter()
 
@@ -40,13 +40,13 @@ def staff_create_attendance(
     if not student_in:
          raise HTTPException(status_code=400, detail="Student not found")
         
-    lecture_in = lecture.get_by_id(session=session, id=attendance_in.lecture_id)    
+    lecture_in = lecture.get_by_secret(session=session, lecture_secret=attendance_in.lecture_secret)    
 
     if not lecture_in :
         raise HTTPException(status_code=404, detail="Lecture not found")
 
-    existing_attendance = attendance.get_by_student_and_lecture_id(session=session,student_id = attendance_in.student_id, lecture_id=
-                                                                attendance_in.lecture_id
+    existing_attendance = attendance.get_by_student_and_lecture_secret(session=session,student_id = attendance_in.student_id, lecture_secret=
+                                                                attendance_in.lecture_secret
                                                                    )
     if existing_attendance:
         raise HTTPException(
@@ -84,7 +84,7 @@ def student_create_attendance(
     
 
     lecture = session.exec(
-        select(Lecture).where(Lecture.id == attendance_in.lecture_id)
+        select(Lecture).where(Lecture.lecture_secret == attendance_in.lecture_secret)
         ).first()
   
         
@@ -92,7 +92,7 @@ def student_create_attendance(
         raise HTTPException(status_code=404, detail="Lecture not found")
     
 
-    existing_attendance = attendance.get_by_student_and_lecture_id(session=session, student_id=attendance_in.student_id, lecture_id=attendance_in.lecture_id)
+    existing_attendance = attendance.get_by_student_and_lecture_secret(session=session, student_id=attendance_in.student_id, lecture_secret=attendance_in.lecture_secret)
     
    
     if existing_attendance:
@@ -108,14 +108,14 @@ def student_create_attendance(
 
 
 
-@router.get("/attendances/{lecture_id}", response_model=List[AttendanceRead], dependencies=[Depends(get_current_active_superuser)])
+@router.get("/attendances/{lecture_secret}", response_model=List[AttendanceRead], dependencies=[Depends(get_current_active_superuser)])
 def get_attendance(
     *,
     session: Session = Depends(get_session),
-    lecture_id:int
+    lecture_secret: str
     ):
 
-    db_attendance = session.exec((select(Attendance).where(Attendance.lecture_id== lecture_id))).all()
+    db_attendance = session.exec((select(Attendance).where(Attendance.lecture_secret== lecture_secret))).all()
     if not db_attendance:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -162,20 +162,20 @@ def get_individual_attendance(
         )
     return attendances
 
-@router.put("/attendances", response_model=AttendanceRead, dependencies=[Depends(get_current_active_superuser)])
-def update_attendance(
-    *,
-    session: Session = Depends(get_session),
-    attendance_in: AttendanceUpdate,
-    attendance_id: str
-    ):
-    updated_attendance = attendance.update(session=session, attendance_id=attendance_id, obj_in=attendance_in)
-    if not updated_attendance:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Attendance not found"
-        )
-    return updated_attendance
+# @router.put("/attendances", response_model=AttendanceRead, dependencies=[Depends(get_current_active_superuser)])
+# def update_attendance(
+#     *,
+#     session: Session = Depends(get_session),
+#     attendance_in: AttendanceUpdate,
+#     lecture_secret: str
+#     ):
+#     updated_attendance = attendance.update(session=session, attendance_id=attendance_id, obj_in=attendance_in)
+#     if not updated_attendance:
+#         raise HTTPException(
+#             status_code=status.HTTP_404_NOT_FOUND,
+#             detail="Attendance not found"
+#         )
+#     return updated_attendance
 
 
 
@@ -183,9 +183,9 @@ def update_attendance(
 def delete_attendance(
     *,
     session: Session = Depends(get_session),
-    attendance_id: int
+    attendance_in :AttendanceCreate
     ):
-    deleted_attendance = attendance.remove(session=session, attendance_ld=attendance_id)
+    deleted_attendance = attendance.remove(session=session, lecture_secret=attendance_in.lecture_secret, student_id=attendance_in.student_id)
     if not deleted_attendance:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

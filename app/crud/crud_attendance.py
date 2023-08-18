@@ -1,3 +1,4 @@
+
 from fastapi import HTTPException
 from sqlmodel import Session, col, select
 from app.models.attendance import Attendance
@@ -9,11 +10,11 @@ class CRUDAttendance(CRUDBase[Attendance, AttendanceCreate, AttendanceUpdate]):
 
 
 
-    def get_by_id(self, *, session: Session, id: int) -> Attendance:
-        return session.exec(select(Attendance).where(col(Attendance.id) == id)).first()
+    # def get_by_id(self, *, session: Session, id: int) -> Attendance:
+    #     return session.exec(select(Attendance).where(col(Attendance.id) == id)).first()
     
-    def get_by_student_and_lecture_id(self, *, session: Session, student_id: str, lecture_id) -> Attendance:
-        return session.exec(select(Attendance).where(Attendance.student_id == student_id and Attendance.lecture_id== lecture_id )).first()
+    def get_by_student_and_lecture_secret(self, *, session: Session, student_id: str, lecture_secret:str) -> Attendance:
+        return session.exec(select(Attendance).where(Attendance.student_id == student_id and Attendance.lecture_secret== lecture_secret )).first()
 
 
     
@@ -22,7 +23,7 @@ class CRUDAttendance(CRUDBase[Attendance, AttendanceCreate, AttendanceUpdate]):
 
         db_obj = Attendance(
             student_id=obj_in.student_id,
-            lecture_id= obj_in.lecture_id
+            lecture_secret= obj_in.lecture_secret
 
         )
 
@@ -33,8 +34,9 @@ class CRUDAttendance(CRUDBase[Attendance, AttendanceCreate, AttendanceUpdate]):
 
 
 
-    def update(self, *, session: Session, attendance_id: int, obj_in: AttendanceUpdate) -> Attendance:
-        db_obj = session.exec(select(Attendance).where(col(Attendance.id) == attendance_id)).first()
+    def update(self, *, session: Session, lecture_secret: str, student_id: str, obj_in: AttendanceUpdate) -> Attendance:
+        db_obj = session.exec(select(Attendance).where(col(Attendance.lecture_secret) == lecture_secret and Attendance.student_id) == student_id).first()
+
         if db_obj: 
             obj_data = obj_in.dict(exclude_unset=True)
             for key, value in obj_data.items():
@@ -44,8 +46,8 @@ class CRUDAttendance(CRUDBase[Attendance, AttendanceCreate, AttendanceUpdate]):
             session.refresh(db_obj)
         return db_obj
 
-    def remove(self, *, session: Session, attendance_ld: int) -> Attendance:
-        db_obj = session.exec(select(Attendance).where(col(Attendance.id) == attendance_ld)).first()
+    def remove(self, *, session: Session, lecture_secret: str, student_id: str) -> Attendance:
+        db_obj = session.exec(select(Attendance).where(col(Attendance.lecture_secret) == lecture_secret and Attendance.student_id) == student_id).first()
         if not db_obj:
             raise HTTPException(status_code=404, detail="Attendance not found")
         session.delete(db_obj)
