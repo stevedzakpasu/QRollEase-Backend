@@ -28,7 +28,7 @@ class LectureCreate(SQLModel):
     course_code : str =Field(foreign_key="course.course_code")
     lecture_description: str
     lecture_location : str
-    is_active : bool 
+    is_active : bool = Field(default=True)
 
 
 class LectureUpdate(SQLModel): 
