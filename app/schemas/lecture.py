@@ -8,7 +8,7 @@ class LectureBase(SQLModel):
     course_code : str =Field(foreign_key="course.course_code")
     lecture_description: str
     lecture_location : str
-    is_active : Optional[bool]
+    is_active : bool
     created_at: Optional[datetime] = Field(
         sa_column=Column(DateTime(timezone=True), server_default=func.now()))
     updated_at: Optional[datetime] = Field(
@@ -28,7 +28,7 @@ class LectureCreate(SQLModel):
     course_code : str =Field(foreign_key="course.course_code")
     lecture_description: str
     lecture_location : str
-    is_active : bool = True
+    is_active : bool 
 
 
 class LectureUpdate(SQLModel): 
