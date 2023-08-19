@@ -1,8 +1,8 @@
-"""created tables
+"""updated tables
 
-Revision ID: 4d14c8c2149a
+Revision ID: 570b44d12bb2
 Revises: 
-Create Date: 2023-08-18 10:35:29.055959
+Create Date: 2023-08-18 10:47:24.590946
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 import sqlmodel.sql.sqltypes
 
 # revision identifiers, used by Alembic.
-revision = '4d14c8c2149a'
+revision = '570b44d12bb2'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -51,6 +51,7 @@ def upgrade() -> None:
     sa.Column('course_code', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('lecture_description', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('lecture_location', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column('is_active', sa.Boolean(), nullable=True),
     sa.Column('id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['course_code'], ['course.course_code'], ),
     sa.PrimaryKeyConstraint('id'),
