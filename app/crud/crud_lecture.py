@@ -12,7 +12,7 @@ class CRUDLecture(CRUDBase[Lecture, LectureCreate, LectureUpdate]):
         return session.exec(select(Lecture).where(col(Lecture.lecture_description) == lecture_description)).first()
     
     def get_by_lecture_description_and_course_code(self, *, session: Session, lecture_description: str,course_code: str) -> Lecture:
-        return session.exec(select(Lecture).where(col(Lecture.course_code )== course_code and col(Lecture.lecture_description) == lecture_description    ) ).first()
+        return session.exec(select(Lecture).where((col(Lecture.course_code )== course_code) & (col(Lecture.lecture_description) == lecture_description)    ) ).first()
     
     def get_by_id(self, *, session: Session, id: int) -> Lecture:
         return session.exec(select(Lecture).where(col(Lecture.id) == id)).first()
