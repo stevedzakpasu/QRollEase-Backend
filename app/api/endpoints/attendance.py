@@ -2,7 +2,7 @@ from sqlmodel import select
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session
-from app.api.deps import get_current_active_superuser, get_current_verified_staff, get_current_verified_user
+from app.api.deps import get_current_active_staff, get_current_active_superuser, get_current_verified_staff, get_current_verified_user
 from app.core.deps import get_session
 from app.crud.crud_attendance import attendance
 from app.crud.crud_student import student
@@ -11,11 +11,11 @@ from app.models.attendance import Attendance
 from app.models.lecture import Lecture
 from app.models.student import Student
 from app.models.user import User
-from app.schemas.attendance import AttendanceUpdate, AttendanceRead, AttendanceCreate
+from app.schemas.attendance import AttendanceUpdate, AttendanceCreate, StaffAttendanceRead, StudentAttendanceRead
 
 router = APIRouter()
 
-@router.get("/attendances", response_model=List[AttendanceRead], dependencies=[Depends(get_current_active_superuser)])
+@router.get("/attendances", response_model=List[StaffAttendanceRead], dependencies=[Depends(get_current_active_superuser)])
 def get_attendances(
     *, 
     session: Session = Depends(get_session),
@@ -27,14 +27,13 @@ def get_attendances(
 
 
 
-@router.post("/attendances", response_model=AttendanceCreate, dependencies=[Depends(get_current_verified_staff)])
+@router.post("/attendances", response_model=StaffAttendanceRead, dependencies=[Depends(get_current_verified_staff)])
 def staff_create_attendance(
     *,
     session: Session = Depends(get_session),
     attendance_in: AttendanceCreate,
+):
 
-    ):
-    
     student_in = student.get_by_student_id(session=session, student_id=attendance_in.student_id)
 
     if not student_in:
@@ -42,23 +41,31 @@ def staff_create_attendance(
         
     lecture_in = lecture.get_by_secret(session=session, lecture_secret=attendance_in.lecture_secret)    
 
-    if not lecture_in :
+    if not lecture_in:
         raise HTTPException(status_code=404, detail="Lecture not found")
 
-    existing_attendance = attendance.get_by_student_and_lecture_secret(session=session,student_id = attendance_in.student_id, lecture_secret=
-                                                                attendance_in.lecture_secret
-                                                                   )
+    existing_attendance = attendance.get_by_student_and_lecture_secret(
+        session=session,
+        student_id=attendance_in.student_id,
+        lecture_secret=attendance_in.lecture_secret
+    )
+
     if existing_attendance:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Attendance already recorded"
         )
+    attendance_in.lecture_id = lecture_in.id
+
 
     new_attendance = attendance.create(session=session, obj_in=attendance_in)
     return new_attendance
 
 
-@router.post("/students-attendances", response_model=AttendanceCreate, dependencies=[Depends(get_current_verified_user)])
+
+
+
+@router.post("/students-attendances", response_model=StudentAttendanceRead, dependencies=[Depends(get_current_verified_user)])
 def student_create_attendance(
     *,
     session: Session = Depends(get_session),
@@ -100,6 +107,7 @@ def student_create_attendance(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Attendance already recorded"
         )
+    attendance_in.lecture_id = lecture.id
 
 
     new_attendance = attendance.create(session=session, obj_in=attendance_in)
@@ -108,7 +116,7 @@ def student_create_attendance(
 
 
 
-@router.get("/attendances/{lecture_secret}", response_model=List[AttendanceRead], dependencies=[Depends(get_current_active_superuser)])
+@router.get("/attendances/{lecture_secret}", response_model=List[StaffAttendanceRead], dependencies=[Depends(get_current_active_staff)])
 def get_attendance(
     *,
     session: Session = Depends(get_session),
@@ -124,7 +132,24 @@ def get_attendance(
     return db_attendance
 
 
-@router.get("/my_attendance/", response_model=List[AttendanceRead], dependencies=[Depends(get_current_verified_user)])
+@router.get("/attendances/{lecture_id}", response_model=List[StaffAttendanceRead], dependencies=[Depends(get_current_active_staff)])
+def get_attendance(
+    *,
+    session: Session = Depends(get_session),
+    lecture_id: int
+    ):
+
+    db_attendance = session.exec((select(Attendance).where(Attendance.lecture_id== lecture_id))).all()
+    if not db_attendance:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Attendance not found"
+        )
+    return db_attendance
+
+
+
+@router.get("/my_attendance/", response_model=List[StudentAttendanceRead], dependencies=[Depends(get_current_verified_user)])
 def get_my_attendance(
     *,
     session: Session = Depends(get_session),
@@ -143,7 +168,7 @@ def get_my_attendance(
         )
     return db_attendance
 
-@router.get("/attendances/{student_id}", response_model=List[AttendanceRead], dependencies=[Depends(get_current_active_superuser)])
+@router.get("/attendances/{student_id}", response_model=List[StaffAttendanceRead], dependencies=[Depends(get_current_active_superuser)])
 def get_individual_attendance(
     *,
     session: Session = Depends(get_session),
