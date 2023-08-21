@@ -90,7 +90,7 @@ def create_lecture(
 
 
 
-@router.put("/lectures", response_model=StaffLectureRead, dependencies=[Depends(get_current_active_superuser)])
+@router.put("/lectures", response_model=StaffLectureRead, dependencies=[Depends(get_current_active_staff)])
 def update_lecture(
     *,
     session: Session = Depends(get_session),
