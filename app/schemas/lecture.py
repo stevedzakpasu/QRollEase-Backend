@@ -9,11 +9,15 @@ class LectureBase(SQLModel):
     lecture_description: str
     lecture_location : str
     is_active : Optional[bool] = Field(default=True)
+    accuracy: Optional[float]
+    latitude: Optional[float] 
+    longitude: Optional[float]
     created_at: Optional[datetime] = Field(
         sa_column=Column(DateTime(timezone=True), server_default=func.now()))
     updated_at: Optional[datetime] = Field(
         sa_column=Column(DateTime(timezone=True), onupdate=func.now())
     )
+
 
     
 class StaffLectureRead(LectureBase):
@@ -29,6 +33,9 @@ class LectureCreate(SQLModel):
     lecture_description: str
     lecture_location : str
     is_active : bool = Field(default=True)
+    accuracy: Optional[float]  
+    latitude: Optional[float]  
+    longitude: Optional[float] 
 
 
 class LectureUpdate(SQLModel): 
@@ -37,5 +44,8 @@ class LectureUpdate(SQLModel):
     lecture_location: Optional[str] = None
     lecture_secret: Optional[str] = None
     is_active : Optional[bool] = None
+    accuracy: Optional[float] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
 
 
