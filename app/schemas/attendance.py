@@ -12,7 +12,7 @@ class AttendanceCreate(AttendanceBase):
     pass
 
 
-class StudentAttendanceRead(AttendanceBase):
+class StudentAttendanceRead(SQLModel):
     student_id: str 
     lecture_id: int
 
