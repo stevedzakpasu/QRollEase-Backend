@@ -4,9 +4,9 @@ from sqlmodel import SQLModel, Field
 
 
 class AttendanceBase(SQLModel):
-    student_id: str = Field(foreign_key="student.student_id", primary_key=True)
-    lecture_secret: str = Field(foreign_key="lecture.lecture_secret", primary_key=True)
-    lecture_id: int = Field(foreign_key="lecture.id", primary_key=True)
+    student_id: str = Field(foreign_key="student.student_id", )
+    lecture_secret: str = Field(foreign_key="lecture.lecture_secret")
+    lecture_id: int = Field(foreign_key="lecture.id")
 
 class AttendanceCreate(AttendanceBase):
     pass

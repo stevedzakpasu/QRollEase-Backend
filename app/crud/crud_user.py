@@ -45,6 +45,7 @@ class CRUDUser(CRUDBase[User, UserAdminCreate, UserUpdate]):
             is_superuser=obj_in.is_superuser,
             is_staff=obj_in.is_staff,
             is_active=obj_in.is_active,
+            is_verified = obj_in.is_verified
 
         )
         session.add(db_obj)

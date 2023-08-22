@@ -5,5 +5,5 @@ from app.schemas.attendance import AttendanceBase
 
 
 class Attendance(AttendanceBase, table=True):
-    pass
+    id: Optional[int] = Field(default=None, primary_key=True)
 

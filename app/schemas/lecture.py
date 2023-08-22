@@ -8,10 +8,10 @@ class LectureBase(SQLModel):
     course_code : str =Field(foreign_key="course.course_code")
     lecture_description: str
     lecture_location : str
-    is_active : Optional[bool] = Field(default=True)
-    accuracy: Optional[float]
-    latitude: Optional[float] 
-    longitude: Optional[float]
+    is_active : bool
+    accuracy: float
+    latitude: float
+    longitude: float
     created_at: Optional[datetime] = Field(
         sa_column=Column(DateTime(timezone=True), server_default=func.now()))
     updated_at: Optional[datetime] = Field(
@@ -32,10 +32,10 @@ class LectureCreate(SQLModel):
     course_code : str =Field(foreign_key="course.course_code")
     lecture_description: str
     lecture_location : str
-    is_active : bool = Field(default=True)
-    accuracy: Optional[float]  
-    latitude: Optional[float]  
-    longitude: Optional[float] 
+    is_active : bool
+    accuracy: float
+    latitude: float
+    longitude:float
 
 
 class LectureUpdate(SQLModel): 

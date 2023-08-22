@@ -1,8 +1,8 @@
-"""created tables
+"""updated tables
 
-Revision ID: 81c0cd341e09
+Revision ID: 414149411792
 Revises: 
-Create Date: 2023-08-20 23:21:32.499940
+Create Date: 2023-08-22 13:51:22.825723
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 import sqlmodel.sql.sqltypes
 
 # revision identifiers, used by Alembic.
-revision = '81c0cd341e09'
+revision = '414149411792'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -51,7 +51,10 @@ def upgrade() -> None:
     sa.Column('course_code', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('lecture_description', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('lecture_location', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-    sa.Column('is_active', sa.Boolean(), nullable=True),
+    sa.Column('is_active', sa.Boolean(), nullable=False),
+    sa.Column('accuracy', sa.Float(), nullable=False),
+    sa.Column('latitude', sa.Float(), nullable=False),
+    sa.Column('longitude', sa.Float(), nullable=False),
     sa.Column('id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['course_code'], ['course.course_code'], ),
     sa.PrimaryKeyConstraint('id'),
@@ -83,10 +86,11 @@ def upgrade() -> None:
     sa.Column('student_id', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('lecture_secret', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('lecture_id', sa.Integer(), nullable=False),
+    sa.Column('id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['lecture_id'], ['lecture.id'], ),
     sa.ForeignKeyConstraint(['lecture_secret'], ['lecture.lecture_secret'], ),
     sa.ForeignKeyConstraint(['student_id'], ['student.student_id'], ),
-    sa.PrimaryKeyConstraint('student_id', 'lecture_secret', 'lecture_id')
+    sa.PrimaryKeyConstraint('id')
     )
     op.create_table('staffcourse',
     sa.Column('staff_id', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
