@@ -36,6 +36,5 @@ class StudentRead(StudentCreate):
 class StudentUpdate(SQLModel):
     student_id : Optional[str] = None
     programme: Optional[str] = None
-    facial_features: Optional[List[float]] = None
 
 
