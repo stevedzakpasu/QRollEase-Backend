@@ -33,7 +33,11 @@ class CRUDLecture(CRUDBase[Lecture, LectureCreate, LectureUpdate]):
             course_code= obj_in.course_code,
             lecture_description = obj_in.lecture_description,
 
-            lecture_location=obj_in.lecture_location
+            lecture_location=obj_in.lecture_location,
+            is_active=obj_in.is_active,
+            accuracy=obj_in.accuracy,
+            latitude=obj_in.latitude,
+            longitude=obj_in.longitude
         )
 
         session.add(db_obj)
