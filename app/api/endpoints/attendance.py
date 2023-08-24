@@ -1,3 +1,4 @@
+from fastapi.responses import FileResponse
 from sqlmodel import select
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -12,7 +13,9 @@ from app.models.lecture import Lecture
 from app.models.student import Student
 from app.models.user import User
 from app.schemas.attendance import AttendanceUpdate, AttendanceCreate, StaffAttendanceRead, StudentAttendanceRead
-
+from openpyxl import Workbook
+import tempfile
+import os
 router = APIRouter()
 
 @router.get("/attendances", response_model=List[StaffAttendanceRead], dependencies=[Depends(get_current_active_superuser)])
@@ -217,3 +220,85 @@ def delete_attendance(
             detail="Attendance not found"
         )
     return {"success": "Attendance deleted successfully"}
+
+
+
+@router.get("/generate_excel/{lecture_secret}", dependencies=[Depends(get_current_active_staff)])
+def generate_excel(
+    *,
+    session: Session = Depends(get_session),
+    lecture_secret: str,
+    name: str = "default_filename"
+):
+    db_attendance = session.exec(
+        (select(Attendance).where(Attendance.lecture_secret == lecture_secret))
+    ).all()
+
+    if not db_attendance:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Attendance not found"
+        )
+
+    # Create a new Excel workbook
+    workbook = Workbook()
+    sheet = workbook.active
+
+    # Add title to the first row
+    sheet.append([name])
+    sheet.append(["Student ID"])  # Heading for student IDs
+
+    # Write student IDs to the Excel sheet
+    for attendance in db_attendance:
+        sheet.append([attendance.student_id])
+
+    # Prepare a temporary file to save the workbook
+    temp_filename = f"{name}.xlsx"
+    workbook.save(temp_filename)
+
+    # Prepare headers for download
+    headers = {
+        "Content-Disposition": f"attachment; filename={temp_filename}"
+    }
+
+    # Return the Excel file as a downloadable response
+    return FileResponse(temp_filename, headers=headers, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+
+# @router.get("/generate_excel/{lecture_secret}", dependencies=[Depends(get_current_active_staff)])
+# def generate_excel(
+#     *,
+#     session: Session = Depends(get_session),
+#     lecture_secret: str,
+#     name: str = "default_filename"
+# ):
+#     db_attendance = session.exec(
+#         (select(Attendance).where(Attendance.lecture_secret == lecture_secret))
+#     ).all()
+
+#     if not db_attendance:
+#         raise HTTPException(
+#             status_code=status.HTTP_404_NOT_FOUND,
+#             detail="Attendance not found"
+#         )
+
+#     # Create a new Excel workbook
+#     workbook = Workbook()
+#     sheet = workbook.active
+
+#     # Write student IDs to the Excel sheet
+#     for attendance in db_attendance:
+#         sheet.append([attendance.student_id])
+
+#     # Save the workbook to a temporary file
+#     with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmp_file:
+#         file_path = tmp_file.name
+#         workbook.save(file_path)
+
+#     # Prepare headers for download
+#     headers = {
+#         "Content-Disposition": f"attachment; filename={name}.xlsx"
+#     }
+
+#     # Return the Excel file as a downloadable response
+#     return FileResponse(file_path, headers=headers, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
