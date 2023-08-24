@@ -21,8 +21,11 @@ class StaffBase(SQLModel):
     )
     courses: List["Course"] = Relationship(back_populates="staffs", link_model=StaffCourse)
 
-class StaffCreate(StaffBase):
-     pass
+class StaffCreate(SQLModel):
+    staff_id: str = Field(
+    index=True, sa_column=Column("staff_id", String(), unique=True))
+    department: str
+    user_id: int = Field(foreign_key="user.id")
 
 class StaffRead(StaffBase):
      id: int
