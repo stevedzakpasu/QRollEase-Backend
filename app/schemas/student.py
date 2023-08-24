@@ -22,7 +22,7 @@ class StudentBase(SQLModel):
     courses: List["Course"] = Relationship(back_populates="students", link_model=StudentCourse)
 
 
-class StudentCreate(StudentBase):
+class StudentCreate(SQLModel):
     student_id : str = Field(
         index=True, sa_column=Column("student_id", String, unique=True))
     programme: str
