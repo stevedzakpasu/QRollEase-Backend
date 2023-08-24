@@ -1,7 +1,10 @@
+from io import BytesIO
 from fastapi.responses import FileResponse
+from fastapi_mail import FastMail, MessageSchema, MessageType
+from pydantic import EmailStr
 from sqlmodel import select
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
 from sqlmodel import Session
 from app.api.deps import get_current_active_staff, get_current_active_superuser, get_current_verified_staff, get_current_verified_user
 from app.core.deps import get_session
@@ -14,8 +17,7 @@ from app.models.student import Student
 from app.models.user import User
 from app.schemas.attendance import AttendanceUpdate, AttendanceCreate, StaffAttendanceRead, StudentAttendanceRead
 from openpyxl import Workbook
-import tempfile
-import os
+from app.core.settings import settings
 router = APIRouter()
 
 @router.get("/attendances", response_model=List[StaffAttendanceRead], dependencies=[Depends(get_current_active_superuser)])
@@ -221,14 +223,13 @@ def delete_attendance(
         )
     return {"success": "Attendance deleted successfully"}
 
-
-
-@router.get("/generate_excel/{lecture_secret}", dependencies=[Depends(get_current_active_staff)])
-def generate_excel(
+@router.get("/generate_and_send_excel/{lecture_secret}", dependencies=[Depends(get_current_active_staff)])
+async def generate_and_send_excel(
     *,
     session: Session = Depends(get_session),
     lecture_secret: str,
-    name: str = "default_filename"
+    name: str = "default_filename",
+    staff: User = Depends(get_current_active_staff)
 ):
     db_attendance = session.exec(
         (select(Attendance).where(Attendance.lecture_secret == lecture_secret))
@@ -252,17 +253,87 @@ def generate_excel(
     for attendance in db_attendance:
         sheet.append([attendance.student_id])
 
-    # Prepare a temporary file to save the workbook
-    temp_filename = f"{name}.xlsx"
-    workbook.save(temp_filename)
+    # Save the workbook to a BytesIO object
+    excel_bytes_io = BytesIO()
+    workbook.save(excel_bytes_io)
+    excel_bytes_io.seek(0)  # Move the pointer to the beginning
 
-    # Prepare headers for download
-    headers = {
-        "Content-Disposition": f"attachment; filename={temp_filename}"
-    }
+    # Create an UploadFile instance based on BytesIO content
+    upload_file = UploadFile(
+        filename=f"{name}.xlsx",
+        file=excel_bytes_io,
+    )
 
-    # Return the Excel file as a downloadable response
-    return FileResponse(temp_filename, headers=headers, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    # Create FastMail instance
+    mail = FastMail(settings.CONF)
+
+    # Create email message
+    message = MessageSchema(
+        subject="Attendance Sheet",
+        recipients=[EmailStr(staff.email)],  # Send to staff email
+        body="Attached is the attendance sheet.",
+        subtype="html",  # Specify the subtype
+        attachments=[upload_file]
+    )
+
+    try:
+        # Send email with attached Excel sheet
+        await mail.send_message(message)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to send attendance sheet via email"
+        )
+
+    # Return a success message
+    return {"message": "Attendance sheet generated and sent via email"}
+
+
+
+
+
+
+
+# @router.get("/generate_excel/{lecture_secret}", dependencies=[Depends(get_current_active_staff)])
+# def generate_excel(
+#     *,
+#     session: Session = Depends(get_session),
+#     lecture_secret: str,
+#     name: str = "default_filename"
+# ):
+#     db_attendance = session.exec(
+#         (select(Attendance).where(Attendance.lecture_secret == lecture_secret))
+#     ).all()
+
+#     if not db_attendance:
+#         raise HTTPException(
+#             status_code=status.HTTP_404_NOT_FOUND,
+#             detail="Attendance not found"
+#         )
+
+#     # Create a new Excel workbook
+#     workbook = Workbook()
+#     sheet = workbook.active
+
+#     # Add title to the first row
+#     sheet.append([name])
+#     sheet.append(["Student ID"])  # Heading for student IDs
+
+#     # Write student IDs to the Excel sheet
+#     for attendance in db_attendance:
+#         sheet.append([attendance.student_id])
+
+#     # Prepare a temporary file to save the workbook
+#     temp_filename = f"{name}.xlsx"
+#     workbook.save(temp_filename)
+
+#     # Prepare headers for download
+#     headers = {
+#         "Content-Disposition": f"attachment; filename={temp_filename}"
+#     }
+
+#     # Return the Excel file as a downloadable response
+#     return FileResponse(temp_filename, headers=headers, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
 
 # @router.get("/generate_excel/{lecture_secret}", dependencies=[Depends(get_current_active_staff)])
