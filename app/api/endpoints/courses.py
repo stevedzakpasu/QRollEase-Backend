@@ -78,9 +78,9 @@ def update_course(
 def delete_course(
     *,
     session: Session = Depends(get_session),
-    course_id: str
+    course_code: str
     ):
-    deleted_course = course.remove(session=session, course_id=course_id)
+    deleted_course = course.remove(session=session, course_code=course_code)
     if not deleted_course:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

@@ -53,7 +53,7 @@ class CRUDCourse(CRUDBase[Course, CourseCreate, CourseUpdate]):
             session.refresh(db_obj)
         return db_obj
 
-    def remove(self, *, session: Session, course_code: str) -> Course:
+    def remove(self, *, session: Session, course_code: int) -> Course:
         db_obj = session.exec(select(Course).where(col(Course.course_code) == course_code)).first()
         if not db_obj:
             raise HTTPException(status_code=404, detail="Course not found")
