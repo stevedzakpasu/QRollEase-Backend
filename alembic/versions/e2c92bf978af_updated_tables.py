@@ -1,8 +1,8 @@
 """updated tables
 
-Revision ID: 735135cf138b
+Revision ID: e2c92bf978af
 Revises: 
-Create Date: 2023-08-24 18:22:16.587282
+Create Date: 2023-08-26 14:41:17.437521
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 import sqlmodel.sql.sqltypes
 
 # revision identifiers, used by Alembic.
-revision = '735135cf138b'
+revision = 'e2c92bf978af'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -93,11 +93,11 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('staffcourse',
-    sa.Column('course_code', sa.String(), nullable=True),
     sa.Column('staff_id', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-    sa.ForeignKeyConstraint(['course_code'], ['course.course_code'], ondelete='CASCADE'),
+    sa.Column('course_code', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.ForeignKeyConstraint(['course_code'], ['course.course_code'], ),
     sa.ForeignKeyConstraint(['staff_id'], ['staff.staff_id'], ),
-    sa.PrimaryKeyConstraint('staff_id')
+    sa.PrimaryKeyConstraint('staff_id', 'course_code')
     )
     op.create_table('studentcourse',
     sa.Column('student_id', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
