@@ -137,20 +137,20 @@ def get_attendance(
     return db_attendance
 
 
-@router.get("/attendances/{lecture_id}", response_model=List[StaffAttendanceRead], dependencies=[Depends(get_current_active_staff)])
-def get_attendance(
-    *,
-    session: Session = Depends(get_session),
-    lecture_id: int
-    ):
+# @router.get("/attendances/{lecture_id}", response_model=List[StaffAttendanceRead], dependencies=[Depends(get_current_active_staff)])
+# def get_attendance(
+#     *,
+#     session: Session = Depends(get_session),
+#     lecture_id: int
+#     ):
 
-    db_attendance = session.exec((select(Attendance).where(Attendance.lecture_id== lecture_id))).all()
-    if not db_attendance:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Attendance not found"
-        )
-    return db_attendance
+#     db_attendance = session.exec((select(Attendance).where(Attendance.lecture_id== lecture_id))).all()
+#     if not db_attendance:
+#         raise HTTPException(
+#             status_code=status.HTTP_404_NOT_FOUND,
+#             detail="Attendance not found"
+#         )
+#     return db_attendance
 
 
 
@@ -173,24 +173,24 @@ def get_my_attendance(
         )
     return db_attendance
 
-@router.get("/attendances/{student_id}", response_model=List[StaffAttendanceRead], dependencies=[Depends(get_current_active_superuser)])
-def get_individual_attendance(
-    *,
-    session: Session = Depends(get_session),
-    student_id: str
-    ):
+# @router.get("/attendances/{student_id}", response_model=List[StaffAttendanceRead], dependencies=[Depends(get_current_active_superuser)])
+# def get_individual_attendance(
+#     *,
+#     session: Session = Depends(get_session),
+#     student_id: str
+#     ):
 
 
 
-    attendances = session.exec(select(Attendance).where(Attendance.student_id == student_id)).all()
+#     attendances = session.exec(select(Attendance).where(Attendance.student_id == student_id)).all()
     
 
-    if not attendances:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Attendances not found"
-        )
-    return attendances
+#     if not attendances:
+#         raise HTTPException(
+#             status_code=status.HTTP_404_NOT_FOUND,
+#             detail="Attendances not found"
+#         )
+#     return attendances
 
 # @router.put("/attendances", response_model=AttendanceRead, dependencies=[Depends(get_current_active_superuser)])
 # def update_attendance(
