@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import EmailStr
 from sqlmodel import Session
@@ -9,7 +9,7 @@ from app.models.user import User
 from app.crud.crud_user import user
 from app.schemas.reset_password_request import ResetPasswordRequest
 from app.schemas.user import UserAdminUpdate, UserCreateReturn, UserRead, UserAdminCreate, UserCreate, UserUpdate
-from app.core.security import generate_verification_code, get_hashed_password
+from app.core.security import  get_hashed_password
 
 router = APIRouter()
 

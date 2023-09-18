@@ -12,7 +12,9 @@ router = APIRouter()
 @router.post("/users/verify_code", dependencies=[Depends(get_current_active_user)])
 def verify_code(*, session: Session = Depends(get_session),
                 code: str,
-                current_user=Depends(get_current_active_user)):
+                current_user=None):
+    if current_user is None:
+        current_user = Depends(get_current_active_user)
     current_time = datetime.datetime.now()
     expiry_date = current_user.code_expiration_time
 

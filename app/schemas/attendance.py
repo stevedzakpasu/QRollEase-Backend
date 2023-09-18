@@ -20,11 +20,6 @@ class StudentAttendanceRead(SQLModel):
 class StaffAttendanceRead(AttendanceBase):
     pass
 
-# class IndividualAttendanceRead(SQLModel):
-#     lecture_id : int
-    
-
-
 class AttendanceUpdate(SQLModel):
     student_id: Optional[str] = None
     lecture_secret: Optional[str] = None

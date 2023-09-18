@@ -1,13 +1,6 @@
-from io import BytesIO
-from fastapi.responses import FileResponse
-from fastapi_mail import FastMail, MessageSchema, MessageType
-from pydantic import EmailStr
-from sqlmodel import select
-from typing import List
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
-from sqlmodel import Session
 from app.api.deps import get_current_active_staff, get_current_active_superuser, get_current_verified_staff, get_current_verified_user
 from app.core.deps import get_session
+from app.core.settings import settings
 from app.crud.crud_attendance import attendance
 from app.crud.crud_student import student
 from app.crud.crud_lecture import lecture
@@ -15,9 +8,14 @@ from app.models.attendance import Attendance
 from app.models.lecture import Lecture
 from app.models.student import Student
 from app.models.user import User
-from app.schemas.attendance import AttendanceUpdate, AttendanceCreate, StaffAttendanceRead, StudentAttendanceRead
+from app.schemas.attendance import AttendanceCreate, StaffAttendanceRead, StudentAttendanceRead
+from io import BytesIO
+from fastapi_mail import FastMail, MessageSchema
+from pydantic import EmailStr
+from typing import List
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
+from sqlmodel import Session, select
 from openpyxl import Workbook
-from app.core.settings import settings
 router = APIRouter()
 
 @router.get("/attendances", response_model=List[StaffAttendanceRead], dependencies=[Depends(get_current_active_superuser)])
@@ -137,22 +135,6 @@ def get_attendance(
     return db_attendance
 
 
-# @router.get("/attendances/{lecture_id}", response_model=List[StaffAttendanceRead], dependencies=[Depends(get_current_active_staff)])
-# def get_attendance(
-#     *,
-#     session: Session = Depends(get_session),
-#     lecture_id: int
-#     ):
-
-#     db_attendance = session.exec((select(Attendance).where(Attendance.lecture_id== lecture_id))).all()
-#     if not db_attendance:
-#         raise HTTPException(
-#             status_code=status.HTTP_404_NOT_FOUND,
-#             detail="Attendance not found"
-#         )
-#     return db_attendance
-
-
 
 @router.get("/my_attendance/", response_model=List[StudentAttendanceRead], dependencies=[Depends(get_current_verified_user)])
 def get_my_attendance(
@@ -172,41 +154,6 @@ def get_my_attendance(
             detail="Attendance not found"
         )
     return db_attendance
-
-# @router.get("/attendances/{student_id}", response_model=List[StaffAttendanceRead], dependencies=[Depends(get_current_active_superuser)])
-# def get_individual_attendance(
-#     *,
-#     session: Session = Depends(get_session),
-#     student_id: str
-#     ):
-
-
-
-#     attendances = session.exec(select(Attendance).where(Attendance.student_id == student_id)).all()
-    
-
-#     if not attendances:
-#         raise HTTPException(
-#             status_code=status.HTTP_404_NOT_FOUND,
-#             detail="Attendances not found"
-#         )
-#     return attendances
-
-# @router.put("/attendances", response_model=AttendanceRead, dependencies=[Depends(get_current_active_superuser)])
-# def update_attendance(
-#     *,
-#     session: Session = Depends(get_session),
-#     attendance_in: AttendanceUpdate,
-#     lecture_secret: str
-#     ):
-#     updated_attendance = attendance.update(session=session, attendance_id=attendance_id, obj_in=attendance_in)
-#     if not updated_attendance:
-#         raise HTTPException(
-#             status_code=status.HTTP_404_NOT_FOUND,
-#             detail="Attendance not found"
-#         )
-#     return updated_attendance
-
 
 
 @router.delete("/attendances", dependencies=[Depends(get_current_active_superuser)])
@@ -289,87 +236,3 @@ async def generate_and_send_excel(
     return {"message": "Attendance sheet generated and sent via email"}
 
 
-
-
-
-
-
-# @router.get("/generate_excel/{lecture_secret}", dependencies=[Depends(get_current_active_staff)])
-# def generate_excel(
-#     *,
-#     session: Session = Depends(get_session),
-#     lecture_secret: str,
-#     name: str = "default_filename"
-# ):
-#     db_attendance = session.exec(
-#         (select(Attendance).where(Attendance.lecture_secret == lecture_secret))
-#     ).all()
-
-#     if not db_attendance:
-#         raise HTTPException(
-#             status_code=status.HTTP_404_NOT_FOUND,
-#             detail="Attendance not found"
-#         )
-
-#     # Create a new Excel workbook
-#     workbook = Workbook()
-#     sheet = workbook.active
-
-#     # Add title to the first row
-#     sheet.append([name])
-#     sheet.append(["Student ID"])  # Heading for student IDs
-
-#     # Write student IDs to the Excel sheet
-#     for attendance in db_attendance:
-#         sheet.append([attendance.student_id])
-
-#     # Prepare a temporary file to save the workbook
-#     temp_filename = f"{name}.xlsx"
-#     workbook.save(temp_filename)
-
-#     # Prepare headers for download
-#     headers = {
-#         "Content-Disposition": f"attachment; filename={temp_filename}"
-#     }
-
-#     # Return the Excel file as a downloadable response
-#     return FileResponse(temp_filename, headers=headers, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-
-
-# @router.get("/generate_excel/{lecture_secret}", dependencies=[Depends(get_current_active_staff)])
-# def generate_excel(
-#     *,
-#     session: Session = Depends(get_session),
-#     lecture_secret: str,
-#     name: str = "default_filename"
-# ):
-#     db_attendance = session.exec(
-#         (select(Attendance).where(Attendance.lecture_secret == lecture_secret))
-#     ).all()
-
-#     if not db_attendance:
-#         raise HTTPException(
-#             status_code=status.HTTP_404_NOT_FOUND,
-#             detail="Attendance not found"
-#         )
-
-#     # Create a new Excel workbook
-#     workbook = Workbook()
-#     sheet = workbook.active
-
-#     # Write student IDs to the Excel sheet
-#     for attendance in db_attendance:
-#         sheet.append([attendance.student_id])
-
-#     # Save the workbook to a temporary file
-#     with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmp_file:
-#         file_path = tmp_file.name
-#         workbook.save(file_path)
-
-#     # Prepare headers for download
-#     headers = {
-#         "Content-Disposition": f"attachment; filename={name}.xlsx"
-#     }
-
-#     # Return the Excel file as a downloadable response
-#     return FileResponse(file_path, headers=headers, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")

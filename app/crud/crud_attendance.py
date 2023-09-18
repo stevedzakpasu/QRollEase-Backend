@@ -8,16 +8,8 @@ from app.crud.base import CRUDBase
 
 class CRUDAttendance(CRUDBase[Attendance, AttendanceCreate, AttendanceUpdate]):
 
-
-
-    # def get_by_id(self, *, session: Session, id: int) -> Attendance:
-    #     return session.exec(select(Attendance).where(col(Attendance.id) == id)).first()
     def get_by_student_and_lecture_secret(self, *, session: Session, student_id: str, lecture_secret: str) -> Attendance:
         return session.exec(select(Attendance).where((Attendance.student_id == student_id) & (Attendance.lecture_secret == lecture_secret))).first()
-
-
-
-
     
     def create(self, *, session: Session, obj_in: AttendanceCreate) -> Attendance:
     

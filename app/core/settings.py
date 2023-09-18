@@ -19,18 +19,18 @@ class Settings(BaseSettings):
 
     BACKEND_CORS_ORIGINS: list[AnyHttpUrl] = ["http://localhost:8000"]
 
-    SUPERUSER_EMAIL: EmailStr = "qrollease@gmail.com"
+    SUPERUSER_EMAIL: EmailStr = os.environ.get("SUPERUSER_EMAIL")
+    SUPERUSER_PASSWORD: str = os.environ.get("SUPERUSER_PASSWORD")
     SUPERUSER_FIRSTNAME: str = "QRollEase"
     SUPERUSER_LASTNAME: str = "Admin"
-    SUPERUSER_PASSWORD: str = "admin"
     SUPERUSER: bool = True
     VERIFIED: bool = True
 
 
     CONF = ConnectionConfig(
-    MAIL_USERNAME = "qrollease@gmail.com",
+    MAIL_USERNAME = os.environ.get("SUPERUSER_EMAIL"),
     MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD"),
-    MAIL_FROM = "qrollease@gmail.com",
+    MAIL_FROM = os.environ.get("SUPERUSER_EMAIL"),
     MAIL_PORT = 587,
     MAIL_SERVER = "smtp.gmail.com",
     MAIL_FROM_NAME="QRollEase Verification",

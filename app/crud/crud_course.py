@@ -22,8 +22,6 @@ class CRUDCourse(CRUDBase[Course, CourseCreate, CourseUpdate]):
         return session.exec(select(Course).where(col(Course.id) == id)).all()
     
 
-    
-
 
     
     def create(self, *, session: Session, obj_in: CourseCreate) -> Course:

@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-from sqlmodel import SQLModel
 from app.core.deps import create_superuser
 from app.core.settings import settings
 from app.api.api import api_router

@@ -1,13 +1,10 @@
-import datetime
-from sqlmodel import SQLModel, Session
+from sqlmodel import Session
 from app.core.db import engine
-from app.core.security import generate_verification_code, get_hashed_password
+from app.core.security import get_hashed_password
 from app.core.settings import settings
 from app.crud.crud_user import user
 from app.models.user import User
-from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
 
-fastmail = FastMail(settings.CONF)
 
 def get_session():
     with Session(engine) as session:
