@@ -1,7 +1,8 @@
 # QRollEase API
 
-This is the backend service for QRollEase Mobile attendance application.
-This Python-based API is built with FastAPI, SQLModel, and PostgreSQL to enable efficient attendance tracking for students and lecturers using QR codes and geolocation primarily at the University of Ghana.
+This is the backend service for [QRollEase](https://github.com/stevedzakpasu/QRollEase-Mobile).
+It is a mobile application I built as part of my senior year final project to solve issues with the current attendance management system at the University of Ghana.
+This Python-based API is built with FastAPI, SQLModel, and PostgreSQL to enable efficient attendance tracking for students and lecturers using QR codes and geolocation.
 
 ## Getting Started
 
