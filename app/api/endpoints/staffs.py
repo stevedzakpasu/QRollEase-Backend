@@ -109,7 +109,7 @@ def get_staff(
 
 
 @router.get("/staff-personal-info/{staff_id}", response_model=UserRead, dependencies=[Depends(get_current_active_superuser)])
-def get_student_info(staff_id: int, session: Session = Depends(get_session)):
+def get_staff_info(staff_id: int, session: Session = Depends(get_session)):
     query = session.exec(
         select(User).join(Staff).where(Staff.staff_id == staff_id)
         )
@@ -153,7 +153,7 @@ def delete_staff(
 
 
 @router.get("/staffs/me/courses", response_model=List[Course], dependencies=[Depends(get_current_active_staff)])
-def get_student_courses(
+def get_staff_courses(
     session: Session = Depends(get_session),
     user: User = Depends(get_current_active_staff)
 ):
